@@ -16,6 +16,7 @@ do
       ;;
     more-servers)
       echo "Starting node2 and node3"
+      docker compose build --no-cache node2 node3
       docker compose up -d node2 node3
       break
       ;;

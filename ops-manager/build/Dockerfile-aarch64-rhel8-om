@@ -15,6 +15,8 @@ RUN rm -fr /opt/mongodb/mms/jdk && \
     mkdir -p /opt/mongodb/mms/jdk && \
     tar -xzf /opt/mongodb/mms/jdk.aarch64.tar.gz -C /opt/mongodb/mms/jdk --strip-components=1
 
+RUN sed -i 's/^[[:space:]]*bindIp:.*/  bindIp: 0.0.0.0/' /etc/mongod.conf
+
 RUN systemctl enable mongod && \
     systemctl enable mongodb-mms && \
     systemctl enable sshd && \
@@ -35,6 +37,8 @@ RUN systemctl enable mongod && \
     echo "mongodb.release.autoDownload.enterprise=false" >> /opt/mongodb/mms/conf/conf-mms.properties && \
     echo "mongodb.release.modulePreference=enterpriseRequired" >> /opt/mongodb/mms/conf/conf-mms.properties
 
+RUN sed -i '1i JAVA_MMS_COMMON_OPTS="${JAVA_MMS_COMMON_OPTS} -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"' /opt/mongodb/mms/conf/mms.conf
+
 RUN cd /opt/mongodb/mms/mongodb-releases/ && \
     curl -Ol https://downloads.mongodb.com/linux/mongodb-linux-aarch64-enterprise-rhel82-6.0.15.tgz && \
     mv mongodb-linux-aarch64-enterprise-rhel82-6.0.15.tgz mongodb-linux-x86_64-enterprise-rhel80-6.0.15.tgz && \
@@ -42,6 +46,7 @@ RUN cd /opt/mongodb/mms/mongodb-releases/ && \
     tar -xzf mongodb-linux-x86_64-enterprise-rhel80-6.0.15.tgz && \
     mv mongodb-linux-aarch64-enterprise-rhel82-6.0.15 mongodb-linux-x86_64-enterprise-rhel80-6.0.15
 
+EXPOSE 5005
 EXPOSE 8080
 EXPOSE 8443
 EXPOSE 25999
