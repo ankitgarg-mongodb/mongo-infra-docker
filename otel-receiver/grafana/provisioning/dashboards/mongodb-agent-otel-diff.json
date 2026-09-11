@@ -18,31 +18,16 @@
   },
   "panels": [
     {
-      "id": 1,
-      "type": "text",
-      "title": "",
+      "id": 500,
+      "type": "stat",
+      "title": "Fleet stats  \u25c0 prom",
+      "description": "agents, mongods, mongos, connections and version skew - one value per stat",
       "gridPos": {
-        "h": 3,
-        "w": 24,
+        "h": 4,
+        "w": 12,
         "x": 0,
         "y": 0
       },
-      "options": {
-        "mode": "markdown",
-        "content": "**LEFT: `prometheus` (dedicated receiver)**  |  **RIGHT: `grafana-otel` (Grafana backend)**\n\nSame agent, two export slots, same queries - rows align horizontally for scroll comparison. A shape difference between the two sides is ingestion drift."
-      }
-    },
-    {
-      "id": 1,
-      "type": "stat",
-      "title": "Agents reporting (self)  \u25c0 prom",
-      "description": "the agent's own resource, self-reported alongside every process it monitors - one per monitoring agent",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 3
-      },
       "datasource": {
         "type": "prometheus",
         "uid": "prometheus"
@@ -54,6 +39,52 @@
           "datasource": {
             "type": "prometheus",
             "uid": "prometheus"
+          },
+          "legendFormat": "points"
+        },
+        {
+          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongod\"}))",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "mongods"
+        },
+        {
+          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongos\"}))",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "mongos"
+        },
+        {
+          "expr": "sum(mongodb_connection_count{type=\"current\"})",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "legendFormat": "conns"
+        },
+        {
+          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
+          "legendFormat": "mongod ver",
+          "refId": "E",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
+          "legendFormat": "agent ver",
+          "refId": "F",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
           }
         }
       ],
@@ -67,20 +98,27 @@
       },
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "auto"
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
       }
     },
     {
-      "id": 1,
+      "id": 600,
       "type": "stat",
-      "title": "Agents reporting (self)  graf \u25b6",
-      "description": "the agent's own resource, self-reported alongside every process it monitors - one per monitoring agent",
+      "title": "Fleet stats  graf \u25b6",
+      "description": "agents, mongods, mongos, connections and version skew - one value per stat",
       "gridPos": {
         "h": 4,
         "w": 12,
         "x": 12,
-        "y": 3
+        "y": 0
       },
       "datasource": {
         "type": "prometheus",
@@ -93,157 +131,49 @@
           "datasource": {
             "type": "prometheus",
             "uid": "grafana-otel"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
+          },
+          "legendFormat": "points"
         },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 2,
-      "type": "stat",
-      "title": "mongod processes  \u25c0 prom",
-      "description": "standalone + replica set members + shard members + config servers",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 7
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
         {
           "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongod\"}))",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 2,
-      "type": "stat",
-      "title": "mongod processes  graf \u25b6",
-      "description": "standalone + replica set members + shard members + config servers",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 7
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "grafana-otel"
-      },
-      "targets": [
-        {
-          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongod\"}))",
-          "refId": "A",
+          "refId": "B",
           "datasource": {
             "type": "prometheus",
             "uid": "grafana-otel"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
+          },
+          "legendFormat": "mongods"
         },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "mongos routers  \u25c0 prom",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 11
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
         {
           "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongos\"}))",
-          "refId": "A",
+          "refId": "C",
           "datasource": {
             "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
+            "uid": "grafana-otel"
+          },
+          "legendFormat": "mongos"
+        },
+        {
+          "expr": "sum(mongodb_connection_count{type=\"current\"})",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          },
+          "legendFormat": "conns"
+        },
+        {
+          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
+          "legendFormat": "mongod ver",
+          "refId": "E",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
           }
         },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 3,
-      "type": "stat",
-      "title": "mongos routers  graf \u25b6",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 11
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "grafana-otel"
-      },
-      "targets": [
         {
-          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongos\"}))",
-          "refId": "A",
+          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
+          "legendFormat": "agent ver",
+          "refId": "F",
           "datasource": {
             "type": "prometheus",
             "uid": "grafana-otel"
@@ -261,83 +191,14 @@
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "Connections (current)  \u25c0 prom",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 15
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "sum(mongodb_connection_count{type=\"current\"})",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
         }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 4,
-      "type": "stat",
-      "title": "Connections (current)  graf \u25b6",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 15
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "grafana-otel"
-      },
-      "targets": [
-        {
-          "expr": "sum(mongodb_connection_count{type=\"current\"})",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "grafana-otel"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "area",
-        "textMode": "auto"
       }
     },
     {
@@ -349,7 +210,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 19
+        "y": 4
       },
       "datasource": {
         "type": "prometheus",
@@ -394,7 +255,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 19
+        "y": 4
       },
       "datasource": {
         "type": "prometheus",
@@ -439,7 +300,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 27
+        "y": 4
       },
       "datasource": {
         "type": "prometheus",
@@ -481,7 +342,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 27
+        "y": 4
       },
       "datasource": {
         "type": "prometheus",
@@ -522,7 +383,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 35
+        "y": 4
       },
       "datasource": {
         "type": "prometheus",
@@ -563,7 +424,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 35
+        "y": 4
       },
       "datasource": {
         "type": "prometheus",
@@ -605,7 +466,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 43
+        "y": 12
       },
       "datasource": {
         "type": "prometheus",
@@ -647,7 +508,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 43
+        "y": 12
       },
       "datasource": {
         "type": "prometheus",
@@ -689,7 +550,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 51
+        "y": 12
       },
       "datasource": {
         "type": "prometheus",
@@ -731,7 +592,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 51
+        "y": 12
       },
       "datasource": {
         "type": "prometheus",
@@ -773,7 +634,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 59
+        "y": 12
       },
       "datasource": {
         "type": "prometheus",
@@ -826,7 +687,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 59
+        "y": 12
       },
       "datasource": {
         "type": "prometheus",
@@ -879,7 +740,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 67
+        "y": 20
       },
       "datasource": {
         "type": "prometheus",
@@ -921,7 +782,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 67
+        "y": 20
       },
       "datasource": {
         "type": "prometheus",
@@ -963,7 +824,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 75
+        "y": 20
       },
       "datasource": {
         "type": "prometheus",
@@ -1052,7 +913,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 75
+        "y": 20
       },
       "datasource": {
         "type": "prometheus",
@@ -1141,7 +1002,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 83
+        "y": 20
       },
       "datasource": {
         "type": "prometheus",
@@ -1192,7 +1053,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 83
+        "y": 20
       },
       "datasource": {
         "type": "prometheus",
@@ -1243,7 +1104,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 91
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -1294,7 +1155,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 91
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -1345,7 +1206,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 99
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -1411,7 +1272,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 99
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -1477,7 +1338,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 107
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -1519,7 +1380,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 107
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -1560,7 +1421,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 115
+        "y": 36
       }
     },
     {
@@ -1572,7 +1433,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 116
+        "y": 37
       },
       "datasource": {
         "type": "prometheus",
@@ -1623,7 +1484,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 116
+        "y": 37
       },
       "datasource": {
         "type": "prometheus",
@@ -1674,7 +1535,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 124
+        "y": 37
       },
       "datasource": {
         "type": "prometheus",
@@ -1740,7 +1601,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 124
+        "y": 37
       },
       "datasource": {
         "type": "prometheus",
@@ -1806,7 +1667,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 132
+        "y": 37
       },
       "datasource": {
         "type": "prometheus",
@@ -1866,7 +1727,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 132
+        "y": 37
       },
       "datasource": {
         "type": "prometheus",
@@ -1926,7 +1787,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 140
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -1968,7 +1829,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 140
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -2010,7 +1871,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 148
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -2061,7 +1922,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 148
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -2112,7 +1973,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 156
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -2172,7 +2033,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 156
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -2232,7 +2093,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 164
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -2283,7 +2144,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 164
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -2334,7 +2195,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 172
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -2385,7 +2246,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 172
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -2436,7 +2297,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 180
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -2487,7 +2348,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 180
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -2538,7 +2399,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 188
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -2613,7 +2474,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 188
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -2688,7 +2549,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 196
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -2739,7 +2600,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 196
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -2790,7 +2651,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 204
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -2832,7 +2693,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 204
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -2873,7 +2734,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 212
+        "y": 69
       }
     },
     {
@@ -2885,7 +2746,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 213
+        "y": 70
       },
       "datasource": {
         "type": "prometheus",
@@ -2936,7 +2797,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 213
+        "y": 70
       },
       "datasource": {
         "type": "prometheus",
@@ -2987,7 +2848,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 221
+        "y": 70
       },
       "datasource": {
         "type": "prometheus",
@@ -3053,7 +2914,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 221
+        "y": 70
       },
       "datasource": {
         "type": "prometheus",
@@ -3119,7 +2980,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 229
+        "y": 70
       },
       "datasource": {
         "type": "prometheus",
@@ -3188,7 +3049,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 229
+        "y": 70
       },
       "datasource": {
         "type": "prometheus",
@@ -3257,7 +3118,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 237
+        "y": 78
       },
       "datasource": {
         "type": "prometheus",
@@ -3355,7 +3216,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 237
+        "y": 78
       },
       "datasource": {
         "type": "prometheus",
@@ -3453,7 +3314,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 245
+        "y": 78
       },
       "datasource": {
         "type": "prometheus",
@@ -3528,7 +3389,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 245
+        "y": 78
       },
       "datasource": {
         "type": "prometheus",
@@ -3603,7 +3464,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 253
+        "y": 78
       },
       "datasource": {
         "type": "prometheus",
@@ -3692,7 +3553,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 253
+        "y": 78
       },
       "datasource": {
         "type": "prometheus",
@@ -3781,7 +3642,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 261
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -3832,7 +3693,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 261
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -3883,7 +3744,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 269
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -3963,7 +3824,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 269
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -4043,7 +3904,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 277
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -4085,7 +3946,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 277
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -4127,7 +3988,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 285
+        "y": 94
       },
       "datasource": {
         "type": "prometheus",
@@ -4169,7 +4030,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 285
+        "y": 94
       },
       "datasource": {
         "type": "prometheus",
@@ -4200,166 +4061,6 @@
             "lastNotNull"
           ]
         }
-      }
-    },
-    {
-      "id": 41,
-      "type": "stat",
-      "title": "mongod versions  \u25c0 prom",
-      "description": "processes per mongod version - version skew shows up here during rolling upgrades",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 293
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
-          "legendFormat": "{{mongodb_version}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 41,
-      "type": "stat",
-      "title": "mongod versions  graf \u25b6",
-      "description": "processes per mongod version - version skew shows up here during rolling upgrades",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 293
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "grafana-otel"
-      },
-      "targets": [
-        {
-          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
-          "legendFormat": "{{mongodb_version}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "grafana-otel"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 42,
-      "type": "stat",
-      "title": "agent versions  \u25c0 prom",
-      "description": "agents per agent version - rollout skew across hosts",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 0,
-        "y": 297
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "prometheus"
-      },
-      "targets": [
-        {
-          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
-          "legendFormat": "{{service_version}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "prometheus"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 42,
-      "type": "stat",
-      "title": "agent versions  graf \u25b6",
-      "description": "agents per agent version - rollout skew across hosts",
-      "gridPos": {
-        "h": 4,
-        "w": 12,
-        "x": 12,
-        "y": 297
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "grafana-otel"
-      },
-      "targets": [
-        {
-          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
-          "legendFormat": "{{service_version}}",
-          "refId": "A",
-          "datasource": {
-            "type": "prometheus",
-            "uid": "grafana-otel"
-          }
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
       }
     }
   ]

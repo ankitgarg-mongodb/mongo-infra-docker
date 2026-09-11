@@ -222,6 +222,9 @@ cert="certs/$(backend_cert otelcol)"
   echo "      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/elasticsearch]"
 } > otelcol/collector.yaml
 
+# regenerate the diff dashboard from the main dashboard so they never drift
+python3 gen-diff-dashboard.py
+
 # --- start the stack -----------------------------------------------------------
 
 echo "Starting containers..."
