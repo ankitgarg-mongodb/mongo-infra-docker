@@ -23,7 +23,7 @@ backend_key() { printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_'; }
 
 # --- validate ----------------------------------------------------------------
 
-for name in prometheus grafana-otel elasticsearch otelcol
+for name in prometheus grafana-otel victoriametrics otelcol
 do
   key=$(backend_key "$name")
   tls="${key}_TLS"
@@ -31,9 +31,9 @@ do
     none|tls|mtls) ;;
     *) echo "backends.conf: ${!tls} - ${tls} must be none, tls or mtls"; exit 1 ;;
   esac
-  # elasticsearch runs unauthenticated locally, its TLS knob is none-only
-  if [[ "$name" == "elasticsearch" && "${!tls:-none}" != "none" ]]; then
-    echo "backends.conf: ELASTICSEARCH_TLS must be none, TLS modes are covered by the other backends"
+  # victoriametrics runs unauthenticated locally, its TLS knob is none-only
+  if [[ "$name" == "victoriametrics" && "${!tls:-none}" != "none" ]]; then
+    echo "backends.conf: VICTORIAMETRICS_TLS must be none, TLS modes are covered by the other backends"
     exit 1
   fi
   certs="${key}_CERTS"
@@ -157,15 +157,12 @@ ca_fp=$(openssl x509 -in certs/ca.crt -noout -fingerprint -sha256 2>/dev/null ||
   echo "    type: prometheus"
   echo "    access: proxy"
   echo "    url: http://grafana-otel:9090"
-  # elasticsearch receives the agent's metrics via its native OTLP endpoint
-  echo "  - name: elasticsearch"
-  echo "    uid: elasticsearch"
-  echo "    type: elasticsearch"
+  # victoriametrics speaks the prometheus querying API - the same panels work on it
+  echo "  - name: victoriametrics"
+  echo "    uid: victoriametrics"
+  echo "    type: prometheus"
   echo "    access: proxy"
-  echo "    url: http://elasticsearch:9200"
-  echo "    jsonData:"
-  echo '      esVersion: "9.2.1"'
-  echo '      timeField: "@timestamp"'
+  echo "    url: http://victoriametrics:8428"
 } > grafana/provisioning/datasources/datasources.yml
 
 
@@ -212,14 +209,14 @@ cert="certs/$(backend_cert otelcol)"
     echo "      cert_file: /certs/client.crt"
     echo "      key_file: /certs/client.key"
   fi
-  echo "  otlphttp/elasticsearch:"
-  echo "    endpoint: http://elasticsearch:9200/_otlp"
+  echo "  otlphttp/victoriametrics:"
+  echo "    endpoint: http://victoriametrics:8428/opentelemetry"
   echo
   echo "service:"
   echo "  pipelines:"
   echo "    metrics:"
   echo "      receivers: [otlp]"
-  echo "      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/elasticsearch]"
+  echo "      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/victoriametrics]"
 } > otelcol/collector.yaml
 
 # regenerate the diff dashboard from the main dashboard so they never drift
@@ -242,7 +239,7 @@ echo
 echo "Grafana:        http://localhost:3000 (admin / admin, change on first login)"
 echo "Prometheus:     https://localhost:9090 (TLS ${PROMETHEUS_TLS:-none}, browsing it needs the client certificate in your browser)"
 echo "Grafana OTLP:   https://localhost:4320 (TLS ${GRAFANA_OTEL_TLS:-none})"
-echo "Elasticsearch:  http://localhost:9200 (OTLP at /_otlp/v1/metrics, unauthenticated locally)"
+echo "VictoriaMetrics: http://localhost:8428 (OTLP at /opentelemetry/v1/metrics + the prometheus querying API)"
 echo "Collector:      https://localhost:4322 (TLS ${COLLECTOR_TLS:-none}, fans out to all three backends)"
 echo
 echo "All backends are running and visible in Grafana."

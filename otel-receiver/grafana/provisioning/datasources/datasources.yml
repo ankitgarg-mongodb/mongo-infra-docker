@@ -20,11 +20,8 @@ datasources:
     type: prometheus
     access: proxy
     url: http://grafana-otel:9090
-  - name: elasticsearch
-    uid: elasticsearch
-    type: elasticsearch
+  - name: victoriametrics
+    uid: victoriametrics
+    type: prometheus
     access: proxy
-    url: http://elasticsearch:9200
-    jsonData:
-      esVersion: "9.2.1"
-      timeField: "@timestamp"
+    url: http://victoriametrics:8428

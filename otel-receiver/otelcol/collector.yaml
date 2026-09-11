@@ -26,11 +26,11 @@ exporters:
     endpoint: https://grafana-otel:4318
     tls:
       ca_file: /certs/ca.crt
-  otlphttp/elasticsearch:
-    endpoint: http://elasticsearch:9200/_otlp
+  otlphttp/victoriametrics:
+    endpoint: http://victoriametrics:8428/opentelemetry
 
 service:
   pipelines:
     metrics:
       receivers: [otlp]
-      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/elasticsearch]
+      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/victoriametrics]

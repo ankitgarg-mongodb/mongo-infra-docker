@@ -104,8 +104,8 @@ fi
 sign_cert client otel-agent clientAuth
 
 # server certificates: shared covers every backend, dedicated is per backend
-# (elasticsearch runs unauthenticated locally, it never presents a certificate)
-shared_names=(prometheus prometheus.internal grafana-otel grafana-otel.internal elasticsearch elasticsearch.internal otelcol otelcol.internal)
+# (victoriametrics runs unauthenticated locally, it never presents a certificate)
+shared_names=(prometheus prometheus.internal grafana-otel grafana-otel.internal victoriametrics victoriametrics.internal otelcol otelcol.internal)
 
 for backend in prometheus grafana-otel otelcol
 do

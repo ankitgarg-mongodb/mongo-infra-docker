@@ -50,37 +50,35 @@ services:
       - "4320:4318" # OTLP/HTTP for the agent
     volumes:
       - ./otel-collector.yaml:/otel-lgtm/otelcol-config.yaml:ro
+      - ./grafana-otel-prometheus.yaml:/otel-lgtm/prometheus.yaml:ro
       - ./certs:/certs:ro
       - grafana-otel-data:/data
 
-  # Elasticsearch - native OTLP/HTTP metrics ingest on the standard port,
-  # metrics land in the metrics-generic.otel-default data stream
-  # security is off locally so the agent needs no headers, add xpack.security
-  # settings when you want API key auth
-  elasticsearch:
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+  # VictoriaMetrics - prometheus-compatible store with native OTLP ingest;
+  # speaks PromQL so the dashboard's Backend dropdown treats it like prometheus
+  victoriametrics:
+    container_name: victoriametrics
+    command:
+      - -opentelemetry.usePrometheusNaming
+      - -opentelemetry.promoteAllResourceAttributes
+      - -storageDataPath=/victoria-metrics-data
     deploy:
       resources:
         limits:
-          cpus: '2.000'
-          memory: 3G
-        reservations:
           cpus: '1.000'
-          memory: 2G
-    hostname: elasticsearch.internal
-    image: elasticsearch:9.2.1
+          memory: 1G
+        reservations:
+          cpus: '0.500'
+          memory: 0.5G
+    hostname: victoriametrics.internal
+    image: victoriametrics/victoria-metrics:v1.151.0
     restart: unless-stopped
     ports:
-      - "9200:9200" # OTLP/HTTP for the agent and the HTTP API
+      - "8428:8428" # OTLP/HTTP for the agent + the prometheus querying API
     volumes:
-      - es-data:/usr/share/elasticsearch/data
-
+      - vm-data:/victoria-metrics-data
   # Dedicated collector - the optional 4th backend: receives the agent's OTLP
-  # and fans out to prometheus, grafana-otel and elasticsearch in one hop
+  # and fans out to prometheus, grafana-otel and victoriametrics in one hop
   otelcol:
     container_name: otelcol
     command: ["--config=/etc/otelcol/config.yaml"]
@@ -128,4 +126,4 @@ volumes:
   prometheus-data:
   grafana-otel-data:
   grafana-data:
-  es-data:
+  vm-data:

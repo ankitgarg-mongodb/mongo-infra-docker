@@ -2,3 +2,21 @@
 # --web.enable-otlp-receiver flag), nothing is scraped
 global:
   scrape_interval: 15s
+
+# promote the agent's resource attributes to labels on every series - the same
+# set VictoriaMetrics promotes, so one set of queries serves all backends
+otlp:
+  keep_identifying_resource_attributes: true
+  promote_resource_attributes:
+    - service.instance.id
+    - service.name
+    - service.namespace
+    - service.version
+    - host.name
+    - mms.group_id
+    - mongodb.replica_set
+    - mongodb.shard
+    - mongodb.process_type
+    - mongodb.version
+    - server.address
+    - server.port

@@ -2,16 +2,16 @@
 
 Receives the metrics the monitoring agent exports when its OTel feature is enabled (the `otelConfig` monitoring setting).
 
-There is no dedicated collector in the middle - the agent exports OTLP/HTTP straight to each backend, the way it does in production. Every backend is configured with `enabled`, `tls` and `certs` in a single `backends.conf`, certificates live in `certs/` and everything is brought up by one script.
+The agent exports OTLP/HTTP straight to each backend, the way it does in production; an optional collector backend can also receive the stream once and fan it out to all three. Every backend's TLS mode and certificate strategy is configured in a single `backends.conf`, certificates live in `certs/` and everything is brought up by one script.
 
 ```text
                                         ┌-> prometheus     (native OTLP receiver, mTLS)
 monitoring agent --OTLP/HTTP-->         ├-> grafana-otel  (Grafana's OTLP backend, mTLS)
-(max 2 backends)                        └-> elasticsearch (native OTLP endpoint)
+(max 2 backends)                        └-> victoriametrics (native OTLP, prometheus-compatible)
       |
       └--> otelcol (optional 4th backend) --forwards to--> all three above
 
-grafana <--datasources-- prometheus + grafana-otel + elasticsearch
+grafana <--datasources-- prometheus + grafana-otel + victoriametrics
 ```
 
 ## The backends
@@ -20,7 +20,7 @@ grafana <--datasources-- prometheus + grafana-otel + elasticsearch
 | --- | --- | --- | --- |
 | `prometheus` | `prom/prometheus` | Prometheus with its native OTLP receiver | `https://localhost:9090/api/v1/otlp/v1/metrics` |
 | `grafana-otel` | `grafana/otel-lgtm` | Grafana's own OTLP backend (collector + Prometheus + Grafana in one image), named lgtm for Loki-Grafana-Tempo-Metrics | `https://localhost:4320/v1/metrics` |
-| `elasticsearch` | `elasticsearch` | Elasticsearch with its native OTLP/HTTP endpoint, metrics land in the `metrics-generic.otel-default` data stream, unauthenticated locally | `http://localhost:9200/_otlp/v1/metrics` |
+| `victoriametrics` | `victoriametrics` | VictoriaMetrics - prometheus-compatible store with native OTLP ingest; ALL resource attributes promoted to labels, so the dashboard's queries need no joins | `http://localhost:8428/opentelemetry/v1/metrics` |
 | `collector` | `otel/opentelemetry-collector` | Dedicated OpenTelemetry Collector - receives OTLP (configurable TLS like the others) and forwards to ALL THREE backends above in one hop | `https://localhost:4322/v1/metrics` |
 
 The collector enables the fan-out mode: point the agent at the collector as its single backend and all three receivers get the data. Do NOT combine the collector with the other backends in the agent's two slots - they would receive every series twice.
@@ -55,9 +55,9 @@ The script asks for one or two backend names (the agent's hard limit is two back
 - View Grafana on http://localhost:3000
   - username is admin
   - password is admin # needs to be changed on first login
-  - Datasources are pre-provisioned for every queryable backend, one per agent target
+  - Datasources are pre-provisioned for every queryable backend
 - Metric names arrive with dots replaced by underscores, so `mongodb.operation.count` becomes `mongodb_operation_count` (counters get a `_total` suffix). Try:
-  - `mongodb_mms_agent_uptime` - the agent is alive and exporting
+  - `mongodb_mms_agent_uptime_seconds` - the agent is alive and exporting
   - `sum by (mongodb_member) (mongodb_connection_count)` - connections per mongod
   - `rate(mongodb_operation_count_total[1m])` - operations per second, `mongodb_operation_repl_count_total` splits out replication
 - Series carry labels from the agent's resource attributes, e.g. `mms_group_id`, `service_name` (`mongodb-agent`), `service_instance_id` and `host_name`, so multiple agents are distinguishable
@@ -85,8 +85,8 @@ Verified against the code and ground-truthed against `serverStatus` on a live me
 - Of the 67 exported metrics, 32 are counters (rate them), 27 are up-down counters and 8 are gauges (read directly, they are point-in-time). No histograms are exported
 - `mongodb.operation.latency.time` and the network byte/request counters are `kindCounter` (a kind fix corrected latency from gauge and network from up-down); the dashboard derives average latency as `rate(mongodb_operation_latency_time_microseconds_total[...]) / rate(mongodb_operation_latency_count_total[...])`
 - The kind fix renamed six series (added `_total`): operation latency time, network io receive/transmit, network request count, cursor timeout count, document operation count - dashboards built on the old names need the rename
-- Replication member metrics (health, state, lag) are exported per viewing process - every member of a set appears once per viewing mongod. Aggregate with `avg by (mongodb_member)` or join `target_info` for the replica set label, or you plot the same member multiple times
-- `mongodb.replica_set` and `mongodb.shard` ride in the resource header - Prometheus does not promote `mongodb.*` resource attributes onto series labels, they are visible on `target_info`; join with `* on(instance) group_left(mongodb_replica_set) target_info` when you need them on operation metrics
+- Replication member metrics (health, state, lag) are exported per viewing process - every member of a set appears once per viewing mongod. Aggregate with `avg by (mongodb_member)` or you plot the same member multiple times
+- ALL resource attributes (`mongodb.replica_set`, `mongodb.shard`, `mongodb.process_type`, `server.address`, `server.port`, versions, ...) are promoted to labels on every backend (prometheus via `otlp.promote_resource_attributes`, VictoriaMetrics natively), so queries group by them directly - no joins needed
 - Unit conversions are applied at record time and verified: global lock time µs→ms, WT log sync µs→s, top operation time µs→ms
 - `mongodb.operation.time` (top sampler) only emits series while top samples are being recorded
 
@@ -132,14 +132,13 @@ Grafana Cloud, OTLP gateway with instance credentials as basic auth:
 
 ## Checking raw metrics in Grafana
 
-- Open http://localhost:3000, go to **Explore** (compass icon) and pick the datasource for a backend you pointed the agent at - `prometheus` or `grafana-otel`
+- Open http://localhost:3000, go to **Explore** (compass icon) and pick the datasource for a backend you pointed the agent at - `prometheus`, `grafana-otel` or `victoriametrics`
 - Start typing `mongodb` in the query box, the autocomplete lists every metric name the agent has delivered to that backend
 - Switch the query to **code view** and run `{__name__=~"mongodb.*"}` to see all agent series at once, flip to **Table** mode to inspect the raw values and full label sets
 - Every series carries the agent's resource attributes as labels - `service_name` is `mongodb-agent`, plus `mms_group_id`, `service_instance_id`, `host_name`, `mongodb_member` and `mongodb_process_type`, which is how you tell agents and mongod processes apart
-- Three dashboards are pre-provisioned: **MongoDB Agent OTLP Metrics** (Backend dropdown: prometheus / grafana-otel), **MongoDB Agent OTLP Metrics (Elasticsearch)** - the same panel structure against the `metrics-generic.otel-default` data stream using native ES aggregations (avg for gauges, max + derivative for counters) - and **MongoDB Agent OTLP - Backend Diff** (prometheus left, grafana-otel right, rows aligned for drift comparison). All are label-driven: new hosts, agents and topologies appear automatically, removed ones age out. They survive restarts because they are provisioned from `grafana/provisioning/dashboards/`
-- **MongoDB Agent OTLP - Backend Diff** mirrors every panel twice - prometheus on the left, grafana-otel on the right, rows aligned for scroll comparison. The agent exports to both slots simultaneously, so any shape difference between the two sides is ingestion drift
+- Two dashboards are pre-provisioned: **MongoDB Agent OTLP Metrics** (its Backend dropdown switches between prometheus, grafana-otel and victoriametrics - one set of PromQL panels serves all three) and **MongoDB Agent OTLP - Backend Diff** (every panel in three columns - prometheus, grafana-otel, victoriametrics - rows aligned so scrolling compares the ingestion paths; a shape difference between columns is drift). All are label-driven: new hosts, agents and topologies appear automatically, removed ones age out. They survive restarts because they are provisioned from `grafana/provisioning/dashboards/` and the diff dashboard is regenerated from the main one by `gen-diff-dashboard.py` on every quick-start
 - For browsing without a query language use **Drilldown >> Metrics** in the side menu, it catalogs everything Prometheus has received
-- Elasticsearch targets store the metrics as documents in the `metrics-generic.otel-default` data stream, explore them with the elasticsearch datasource or read them straight away with `curl localhost:9200/metrics-generic.otel-default/_search`
+- VictoriaMetrics has its own UI at http://localhost:8428/vmui (MetricsQL queries, metrics explorer) and answers the prometheus querying API, so the Backend dropdown treats it like any prometheus
 - The Prometheus web UI itself sits behind mTLS, Grafana is the easier window into it
 
 ## CRUD workload

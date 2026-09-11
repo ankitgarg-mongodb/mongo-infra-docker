@@ -33,7 +33,7 @@
       },
       "targets": [
         {
-          "expr": "count(target_info{mongodb_process_type=\"\"})",
+          "expr": "count(count by (service_instance_id) (mongodb_mms_agent_uptime_seconds))",
           "refId": "A"
         }
       ],
@@ -68,7 +68,7 @@
       },
       "targets": [
         {
-          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongod\"}))",
+          "expr": "count(count by (service_instance_id) (mongodb_uptime_milliseconds_total{mongodb_process_type=\"mongod\"}))",
           "refId": "A"
         }
       ],
@@ -102,7 +102,7 @@
       },
       "targets": [
         {
-          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongos\"}))",
+          "expr": "count(count by (service_instance_id) (mongodb_uptime_milliseconds_total{mongodb_process_type=\"mongos\"}))",
           "refId": "A"
         }
       ],
@@ -155,6 +155,78 @@
       }
     },
     {
+      "id": 41,
+      "type": "stat",
+      "title": "mongod versions",
+      "description": "processes per mongod version - version skew shows up here during rolling upgrades",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (mongodb_version, service_instance_id) (mongodb_uptime_milliseconds_total))",
+          "legendFormat": "{{mongodb_version}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 42,
+      "type": "stat",
+      "title": "agent versions",
+      "description": "agents per agent version - rollout skew across hosts",
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (service_version, service_instance_id) (mongodb_mms_agent_uptime_seconds))",
+          "legendFormat": "{{service_version}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
       "id": 5,
       "type": "timeseries",
       "title": "Operations /s by replica set",
@@ -171,7 +243,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A"
         }
@@ -212,7 +284,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A"
         }
@@ -249,7 +321,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_document_operation_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_document_operation_count_total[$__rate_interval]))",
           "legendFormat": "{{server_address}}:{{server_port}}",
           "refId": "A"
         }
@@ -287,7 +359,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace((sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))) / (sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A"
         }
@@ -325,7 +397,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
           "refId": "A"
         }
@@ -363,13 +435,13 @@
       },
       "targets": [
         {
-          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_member}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "ok {{topology}} {{mongodb_process_type}}",
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "ok {{topology}}",
           "refId": "B"
         }
       ],
@@ -408,7 +480,7 @@
       },
       "targets": [
         {
-          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_lag_time_seconds * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_lag_time_seconds)",
           "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
           "refId": "A"
         }
@@ -432,7 +504,7 @@
     {
       "id": 12,
       "type": "timeseries",
-      "title": "Oplog window & size (avg per member)",
+      "title": "Oplog window (per member)",
       "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
       "gridPos": {
         "h": 8,
@@ -446,55 +518,58 @@
       },
       "targets": [
         {
-          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "{{topology}} window",
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "window {{topology}}",
           "refId": "A"
-        },
-        {
-          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_used_size_bytes[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "{{topology}} used",
-          "refId": "B"
-        },
-        {
-          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_size_bytes[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "{{topology}} size",
-          "refId": "C"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "s"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/ used$"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/ size$"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 50,
+      "type": "timeseries",
+      "title": "Oplog used & size (per member)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 20
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_used_size_bytes[15m]))",
+          "legendFormat": "used {{topology}}",
+          "refId": "A"
+        },
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_size_bytes[15m]))",
+          "legendFormat": "size {{topology}}",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -514,8 +589,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 20
+        "x": 0,
+        "y": 28
       },
       "datasource": {
         "type": "prometheus",
@@ -523,12 +598,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_receive_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_receive_bytes_total[$__rate_interval]))",
           "legendFormat": "rx {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_transmit_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_transmit_bytes_total[$__rate_interval]))",
           "legendFormat": "tx {{server_address}}:{{server_port}}",
           "refId": "B"
         }
@@ -557,7 +632,7 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
+        "x": 8,
         "y": 28
       },
       "datasource": {
@@ -566,14 +641,19 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_used * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_used)",
           "legendFormat": "used {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_dirty * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_dirty)",
           "legendFormat": "dirty {{server_address}}:{{server_port}}",
           "refId": "B"
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_total)",
+          "legendFormat": "total {{server_address}}:{{server_port}}",
+          "refId": "C"
         }
       ],
       "fieldConfig": {
@@ -595,12 +675,12 @@
     {
       "id": 15,
       "type": "timeseries",
-      "title": "Shard chunks & data size",
+      "title": "Shard chunk count",
       "description": "up-down counters by shard, from the config server",
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
+        "x": 16,
         "y": 28
       },
       "datasource": {
@@ -609,36 +689,53 @@
       },
       "targets": [
         {
-          "expr": "last_over_time(mongodb_shard_chunk_count[15m])",
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_chunk_count[15m]))",
           "legendFormat": "chunks {{mongodb_shard}}",
           "refId": "A"
-        },
-        {
-          "expr": "last_over_time(mongodb_shard_size_owned_bytes[15m])",
-          "legendFormat": "size {{mongodb_shard}}",
-          "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^size .*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 55,
+      "type": "timeseries",
+      "title": "Shard data size (per shard)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 36
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_size_owned_bytes[15m]))",
+          "legendFormat": "owned {{mongodb_shard}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -658,8 +755,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 28
+        "x": 8,
+        "y": 36
       },
       "datasource": {
         "type": "prometheus",
@@ -667,7 +764,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port, type) (mongodb_memory_usage_bytes * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port, type) (mongodb_memory_usage_bytes)",
           "legendFormat": "{{type}} {{server_address}}:{{server_port}}",
           "refId": "A"
         }
@@ -696,7 +793,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 44
       }
     },
     {
@@ -708,7 +805,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 37
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -716,13 +813,13 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_page_faults_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "page faults {{topology}}",
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_page_faults_total[$__rate_interval]))",
+          "legendFormat": "page faults {{mongodb_process_type}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (rate(mongodb_assert_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "asserts {{topology}} {{type}}",
+          "expr": "sum by (type) (rate(mongodb_assert_count_total[$__rate_interval]))",
+          "legendFormat": "asserts {{type}}",
           "refId": "B"
         }
       ],
@@ -751,7 +848,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 37
+        "y": 45
       },
       "datasource": {
         "type": "prometheus",
@@ -759,36 +856,53 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_global_lock_time_milliseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "{{topology}} {{mongodb_process_type}}",
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_global_lock_time_milliseconds_total[$__rate_interval]))",
+          "legendFormat": "lock time {{mongodb_process_type}}",
           "refId": "A"
-        },
-        {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_global_lock_current_queue_count * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "queued {{topology}} {{mongodb_process_type}} {{type}}",
-          "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "ms"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^queued.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "short"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 57,
+      "type": "timeseries",
+      "title": "Global lock queue",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 45
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (type) (mongodb_global_lock_current_queue_count)",
+          "legendFormat": "{{type}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -808,8 +922,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 37
+        "x": 0,
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -817,18 +931,18 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "acquire {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "expr": "sum by (lock_type) (rate(mongodb_lock_acquire_count_total[$__rate_interval]))",
+          "legendFormat": "acquire {{lock_type}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_wait_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "wait {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "expr": "sum by (lock_type) (rate(mongodb_lock_acquire_wait_count_total[$__rate_interval]))",
+          "legendFormat": "wait {{lock_type}}",
           "refId": "B"
         },
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_deadlock_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "deadlock {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "expr": "sum by (lock_type) (rate(mongodb_lock_deadlock_count_total[$__rate_interval]))",
+          "legendFormat": "deadlock {{lock_type}}",
           "refId": "C"
         }
       ],
@@ -856,8 +970,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 45
+        "x": 8,
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -865,8 +979,8 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_time_microseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "{{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "expr": "sum by (lock_type) (rate(mongodb_lock_acquire_time_microseconds_total[$__rate_interval]))",
+          "legendFormat": "{{lock_type}}",
           "refId": "A"
         }
       ],
@@ -894,8 +1008,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
-        "y": 45
+        "x": 16,
+        "y": 53
       },
       "datasource": {
         "type": "prometheus",
@@ -903,13 +1017,13 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (rate(mongodb_query_executor_scanned_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "scanned {{topology}} {{type}}",
+          "expr": "sum by (type) (rate(mongodb_query_executor_scanned_count_total[$__rate_interval]))",
+          "legendFormat": "scanned {{type}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_operation_scan_and_order_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "scan+order {{topology}}",
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_operation_scan_and_order_count_total[$__rate_interval]))",
+          "legendFormat": "scan+order {{mongodb_process_type}}",
           "refId": "B"
         }
       ],
@@ -937,8 +1051,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 45
+        "x": 0,
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -946,18 +1060,18 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_operation_killed_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "killed {{topology}} {{mongodb_process_type}}",
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_operation_killed_count_total[$__rate_interval]))",
+          "legendFormat": "killed {{mongodb_process_type}}",
           "refId": "A"
         },
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_ttl_deleted_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "ttl {{topology}} {{mongodb_process_type}}",
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_ttl_deleted_count_total[$__rate_interval]))",
+          "legendFormat": "ttl {{mongodb_process_type}}",
           "refId": "B"
         },
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_document_returned_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
-          "legendFormat": "returned {{topology}} {{mongodb_process_type}}",
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_document_returned_count_total[$__rate_interval]))",
+          "legendFormat": "returned {{mongodb_process_type}}",
           "refId": "C"
         }
       ],
@@ -985,8 +1099,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 53
+        "x": 8,
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -994,12 +1108,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_operation_latency_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "latency samples {{server_address}}:{{server_port}}",
+          "expr": "sum by (operation) (rate(mongodb_operation_latency_count_total[$__rate_interval]))",
+          "legendFormat": "latency samples {{operation}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_connection_created_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_connection_created_count_total[$__rate_interval]))",
           "legendFormat": "created {{server_address}}:{{server_port}}",
           "refId": "B"
         }
@@ -1028,8 +1142,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
-        "y": 53
+        "x": 16,
+        "y": 61
       },
       "datasource": {
         "type": "prometheus",
@@ -1037,12 +1151,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (mongodb_active_reads * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (mongodb_active_reads)",
           "legendFormat": "reads {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (mongodb_active_writes * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (mongodb_active_writes)",
           "legendFormat": "writes {{server_address}}:{{server_port}}",
           "refId": "B"
         }
@@ -1071,8 +1185,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 53
+        "x": 0,
+        "y": 69
       },
       "datasource": {
         "type": "prometheus",
@@ -1080,13 +1194,13 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port, type) (mongodb_ticket_available * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "available {{type}} {{server_address}}:{{server_port}}",
+          "expr": "sum by (type) (mongodb_ticket_available)",
+          "legendFormat": "available {{type}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port, mongodb_wt_concurrent_transaction_ticket_type) (mongodb_wt_concurrent_transaction_ticket_in_use * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "in use {{mongodb_wt_concurrent_transaction_ticket_type}} {{server_address}}:{{server_port}}",
+          "expr": "sum by (mongodb_wt_concurrent_transaction_ticket_type) (mongodb_wt_concurrent_transaction_ticket_in_use)",
+          "legendFormat": "in use {{mongodb_wt_concurrent_transaction_ticket_type}}",
           "refId": "B"
         }
       ],
@@ -1109,13 +1223,13 @@
     {
       "id": 27,
       "type": "timeseries",
-      "title": "Sessions & cursors",
+      "title": "Sessions & cursors (per process)",
       "description": "up-down counters, cursor timeout is a counter rated",
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 61
+        "x": 8,
+        "y": 69
       },
       "datasource": {
         "type": "prometheus",
@@ -1123,17 +1237,17 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (mongodb_session_count * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (mongodb_session_count)",
           "legendFormat": "sessions {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (mongodb_cursor_count * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (mongodb_cursor_count)",
           "legendFormat": "cursors {{server_address}}:{{server_port}}",
           "refId": "B"
         },
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]))",
           "legendFormat": "timed out {{server_address}}:{{server_port}}",
           "refId": "C"
         }
@@ -1142,22 +1256,44 @@
         "defaults": {
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^timed out.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "ops"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 51,
+      "type": "timeseries",
+      "title": "Cursor timeouts (per process)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 69
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -1177,8 +1313,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
-        "y": 61
+        "x": 0,
+        "y": 77
       },
       "datasource": {
         "type": "prometheus",
@@ -1186,13 +1322,13 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_network_request_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_request_count_total[$__rate_interval]))",
           "legendFormat": "requests {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port, type) (rate(mongodb_cache_operations_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "cache ops {{type}} {{server_address}}:{{server_port}}",
+          "expr": "sum by (type) (rate(mongodb_cache_operations_total[$__rate_interval]))",
+          "legendFormat": "cache ops {{type}}",
           "refId": "B"
         }
       ],
@@ -1220,8 +1356,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 61
+        "x": 8,
+        "y": 77
       },
       "datasource": {
         "type": "prometheus",
@@ -1229,7 +1365,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (mongodb_uptime_milliseconds_total * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"}))) / 1000",
+          "expr": "sum by (server_address, server_port) (mongodb_uptime_milliseconds_total) / 1000",
           "legendFormat": "{{server_address}}:{{server_port}}",
           "refId": "A"
         }
@@ -1258,7 +1394,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 69
+        "y": 85
       }
     },
     {
@@ -1270,7 +1406,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 70
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -1278,12 +1414,12 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_data_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_data_size_bytes[15m]))",
           "legendFormat": "data {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_storage_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_storage_size_bytes[15m]))",
           "legendFormat": "storage {{server_address}}:{{server_port}}",
           "refId": "B"
         }
@@ -1307,13 +1443,13 @@
     {
       "id": 32,
       "type": "timeseries",
-      "title": "Indexes (per process)",
+      "title": "Index count (per process)",
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 70
+        "y": 86
       },
       "datasource": {
         "type": "prometheus",
@@ -1321,36 +1457,53 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "count {{server_address}}:{{server_port}}",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_count[15m]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "size {{server_address}}:{{server_port}}",
-          "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^size.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 58,
+      "type": "timeseries",
+      "title": "Index size (per process)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 86
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_size_bytes[15m]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -1370,8 +1523,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 16,
-        "y": 70
+        "x": 0,
+        "y": 94
       },
       "datasource": {
         "type": "prometheus",
@@ -1379,22 +1532,22 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_collection_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_collection_count[15m]))",
           "legendFormat": "collections {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_view_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_view_count[15m]))",
           "legendFormat": "views {{server_address}}:{{server_port}}",
           "refId": "B"
         },
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_database_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_database_count[15m]))",
           "legendFormat": "dbs {{server_address}}:{{server_port}}",
           "refId": "C"
         },
         {
-          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_object_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_object_count[15m]))",
           "legendFormat": "objects {{server_address}}:{{server_port}}",
           "refId": "D"
         }
@@ -1418,13 +1571,13 @@
     {
       "id": 34,
       "type": "timeseries",
-      "title": "WiredTiger log & fsync (per process)",
+      "title": "WiredTiger journal ops & fsyncs (per process)",
       "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 78
+        "x": 8,
+        "y": 94
       },
       "datasource": {
         "type": "prometheus",
@@ -1432,60 +1585,21 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port, mongodb_wt_log_operation_type) (rate(mongodb_wt_log_operation_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (mongodb_wt_log_operation_type, server_address, server_port) (rate(mongodb_wt_log_operation_count_total[$__rate_interval]))",
           "legendFormat": "{{mongodb_wt_log_operation_type}} {{server_address}}:{{server_port}}",
           "refId": "A"
         },
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_fsync_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_fsync_count_total[$__rate_interval]))",
           "legendFormat": "fsyncs {{server_address}}:{{server_port}}",
           "refId": "B"
-        },
-        {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_write_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "written {{server_address}}:{{server_port}}",
-          "refId": "C"
-        },
-        {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_sync_time_seconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "sync {{server_address}}:{{server_port}}",
-          "refId": "D"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "ops"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^written.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "Bps"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^sync.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "percentunit"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -1498,15 +1612,14 @@
       }
     },
     {
-      "id": 35,
+      "id": 52,
       "type": "timeseries",
-      "title": "WiredTiger cache I/O & size (per process)",
-      "description": "read/written bytes rated, total cache size direct",
+      "title": "WiredTiger journal bytes written (per process)",
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
-        "y": 78
+        "x": 16,
+        "y": 94
       },
       "datasource": {
         "type": "prometheus",
@@ -1514,41 +1627,97 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_read_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "read {{server_address}}:{{server_port}}",
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_write_bytes_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_written_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "written {{server_address}}:{{server_port}}",
-          "refId": "B"
-        },
-        {
-          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_total * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "total {{server_address}}:{{server_port}}",
-          "refId": "C"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "Bps"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^total.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 53,
+      "type": "timeseries",
+      "title": "WiredTiger journal sync time (per process)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 102
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_sync_time_seconds_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "seconds spent syncing per second - a utilization fraction"
+    },
+    {
+      "id": 35,
+      "type": "timeseries",
+      "title": "WiredTiger cache I/O (per process)",
+      "description": "read/written bytes rated, total cache size direct",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 102
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_read_total[$__rate_interval]))",
+          "legendFormat": "read {{server_address}}:{{server_port}}",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_written_total[$__rate_interval]))",
+          "legendFormat": "written {{server_address}}:{{server_port}}",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -1563,13 +1732,13 @@
     {
       "id": 36,
       "type": "timeseries",
-      "title": "Agent internals",
+      "title": "Agent uptime (per agent)",
       "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 78
+        "y": 102
       },
       "datasource": {
         "type": "prometheus",
@@ -1577,55 +1746,90 @@
       },
       "targets": [
         {
-          "expr": "mongodb_mms_agent_uptime_seconds * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
-          "legendFormat": "uptime {{host_name}}",
+          "expr": "avg by (service_version) (mongodb_mms_agent_uptime_seconds)",
+          "legendFormat": "uptime {{service_version}}",
           "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
         },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 62,
+      "type": "timeseries",
+      "title": "Agent goroutines (per agent)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 110
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
         {
-          "expr": "mongodb_mms_agent_goroutine_count * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
-          "legendFormat": "goroutines {{host_name}}",
+          "expr": "avg by (service_version) (mongodb_mms_agent_goroutine_count)",
+          "legendFormat": "goroutines {{service_version}}",
           "refId": "B"
-        },
-        {
-          "expr": "mongodb_mms_agent_memory_usage_bytes * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
-          "legendFormat": "memory {{host_name}}",
-          "refId": "C"
         }
       ],
       "fieldConfig": {
         "defaults": {
           "unit": "short"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^memory.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^uptime.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "s"
-              }
-            ]
-          }
-        ]
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 63,
+      "type": "timeseries",
+      "title": "Agent memory (per agent)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 110
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "avg by (service_version) (mongodb_mms_agent_memory_usage_bytes)",
+          "legendFormat": "memory {{service_version}}",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -1645,8 +1849,8 @@
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 0,
-        "y": 86
+        "x": 16,
+        "y": 110
       },
       "datasource": {
         "type": "prometheus",
@@ -1654,12 +1858,12 @@
       },
       "targets": [
         {
-          "expr": "last_over_time(mongodb_shard_documents_owned[15m])",
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_documents_owned[15m]))",
           "legendFormat": "owned {{mongodb_shard}}",
           "refId": "A"
         },
         {
-          "expr": "last_over_time(mongodb_shard_documents_orphaned[15m])",
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_documents_orphaned[15m]))",
           "legendFormat": "orphaned {{mongodb_shard}}",
           "refId": "B"
         }
@@ -1683,13 +1887,13 @@
     {
       "id": 38,
       "type": "timeseries",
-      "title": "Shard size orphaned & flow control",
+      "title": "Shard size orphaned (per shard)",
       "description": "orphaned bytes by shard; flow control time rated per process",
       "gridPos": {
         "h": 8,
         "w": 8,
-        "x": 8,
-        "y": 86
+        "x": 0,
+        "y": 118
       },
       "datasource": {
         "type": "prometheus",
@@ -1697,50 +1901,16 @@
       },
       "targets": [
         {
-          "expr": "max by (mongodb_shard) (last_over_time(mongodb_shard_size_orphaned_bytes[15m]))",
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_size_orphaned_bytes[15m]))",
           "legendFormat": "orphaned {{mongodb_shard}}",
           "refId": "A"
-        },
-        {
-          "expr": "sum by (server_address, server_port) (rate(mongodb_flow_control_time_microseconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "flow ctl {{server_address}}:{{server_port}}",
-          "refId": "B"
         }
       ],
       "fieldConfig": {
         "defaults": {
-          "unit": "short"
+          "unit": "bytes"
         },
-        "overrides": [
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^flow ctl.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "\u00b5s"
-              }
-            ]
-          },
-          {
-            "matcher": {
-              "id": "byName",
-              "options": {
-                "pattern": "/^orphaned.*/"
-              }
-            },
-            "properties": [
-              {
-                "id": "unit",
-                "value": "bytes"
-              }
-            ]
-          }
-        ]
+        "overrides": []
       },
       "options": {
         "legend": {
@@ -1753,6 +1923,44 @@
       }
     },
     {
+      "id": 54,
+      "type": "timeseries",
+      "title": "Flow control time (per process)",
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 118
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "${ds}"
+      },
+      "targets": [
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_flow_control_time_microseconds_total[$__rate_interval]))",
+          "legendFormat": "{{mongodb_process_type}}",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "RATE of the cumulative \u00b5s counter"
+    },
+    {
       "id": 39,
       "type": "timeseries",
       "title": "Replication member state (deduped by replica set)",
@@ -1761,7 +1969,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 86
+        "y": 118
       },
       "datasource": {
         "type": "prometheus",
@@ -1769,8 +1977,8 @@
       },
       "targets": [
         {
-          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_state_ratio * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
-          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "expr": "avg by (mongodb_member) (mongodb_replication_member_state_ratio)",
+          "legendFormat": "{{mongodb_member}}",
           "refId": "A"
         }
       ],
@@ -1799,7 +2007,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 94
+        "y": 126
       },
       "datasource": {
         "type": "prometheus",
@@ -1807,7 +2015,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (server_address, server_port, operation) (rate(mongodb_operation_time_milliseconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "expr": "sum by (operation, server_address, server_port) (rate(mongodb_operation_time_milliseconds_total[$__rate_interval]))",
           "legendFormat": "{{operation}} {{server_address}}:{{server_port}}",
           "refId": "A"
         }
@@ -1826,78 +2034,6 @@
             "lastNotNull"
           ]
         }
-      }
-    },
-    {
-      "id": 41,
-      "type": "stat",
-      "title": "mongod versions",
-      "description": "processes per mongod version - version skew shows up here during rolling upgrades",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 16,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "targets": [
-        {
-          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
-          "legendFormat": "{{mongodb_version}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
-      }
-    },
-    {
-      "id": 42,
-      "type": "stat",
-      "title": "agent versions",
-      "description": "agents per agent version - rollout skew across hosts",
-      "gridPos": {
-        "h": 4,
-        "w": 4,
-        "x": 20,
-        "y": 0
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "targets": [
-        {
-          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
-          "legendFormat": "{{service_version}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          }
-        },
-        "overrides": []
-      },
-      "options": {
-        "colorMode": "value",
-        "graphMode": "none",
-        "textMode": "auto"
       }
     }
   ],
