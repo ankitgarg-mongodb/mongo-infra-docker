@@ -13,7 +13,8 @@ RUN dnf -y install openssh-server iputils hostname cyrus-sasl cyrus-sasl-gssapi 
 
 RUN rm -fr /opt/mongodb/mms/jdk && \
     mkdir -p /opt/mongodb/mms/jdk && \
-    tar -xzf /opt/mongodb/mms/jdk.aarch64.tar.gz -C /opt/mongodb/mms/jdk --strip-components=1
+    tar -xzf /opt/mongodb/mms/jdk.aarch64.tar.gz -C /opt/mongodb/mms/jdk --strip-components=1 && \
+    cp /opt/mongodb/mms/jdk.aarch64.tar.gz /opt/mongodb/mms/jdk.tgz
 
 RUN systemctl enable mongod && \
     systemctl enable mongodb-mms && \
