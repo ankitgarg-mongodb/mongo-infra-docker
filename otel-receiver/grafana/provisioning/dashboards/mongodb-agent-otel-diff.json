@@ -1,0 +1,4366 @@
+{
+  "uid": "mongodb-agent-otel-diff",
+  "title": "MongoDB Agent OTLP - Backend Diff",
+  "description": "Side-by-side drift comparison: LEFT = prometheus (dedicated receiver), RIGHT = grafana-otel (Grafana backend). The agent exports to both simultaneously - the same panel on both sides should show the same shape. Divergence means one backend dropped or lagged data. Fully label-driven like the source dashboard.",
+  "tags": [
+    "mongodb",
+    "otel",
+    "agent",
+    "diff"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "editable": true,
+  "refresh": "30s",
+  "time": {
+    "from": "now-3h",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "text",
+      "title": "",
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "**LEFT: `prometheus` (dedicated receiver)**  |  **RIGHT: `grafana-otel` (Grafana backend)**\n\nSame agent, two export slots, same queries - rows align horizontally for scroll comparison. A shape difference between the two sides is ingestion drift."
+      }
+    },
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Agents reporting (self)  \u25c0 prom",
+      "description": "the agent's own resource, self-reported alongside every process it monitors - one per monitoring agent",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 3
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count(target_info{mongodb_process_type=\"\"})",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Agents reporting (self)  graf \u25b6",
+      "description": "the agent's own resource, self-reported alongside every process it monitors - one per monitoring agent",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 3
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "count(target_info{mongodb_process_type=\"\"})",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "mongod processes  \u25c0 prom",
+      "description": "standalone + replica set members + shard members + config servers",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongod\"}))",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "mongod processes  graf \u25b6",
+      "description": "standalone + replica set members + shard members + config servers",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongod\"}))",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "mongos routers  \u25c0 prom",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 11
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongos\"}))",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "mongos routers  graf \u25b6",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 11
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (instance) (target_info{mongodb_process_type=\"mongos\"}))",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Connections (current)  \u25c0 prom",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum(mongodb_connection_count{type=\"current\"})",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Connections (current)  graf \u25b6",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 15
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum(mongodb_connection_count{type=\"current\"})",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Operations /s by replica set  \u25c0 prom",
+      "description": "resource-header replica set joined via target_info - processes without a replica set (standalone, config, mongos) land in the unclustered group",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Operations /s by replica set  graf \u25b6",
+      "description": "resource-header replica set joined via target_info - processes without a replica set (standalone, config, mongos) land in the unclustered group",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Replication operations /s by replica set  \u25c0 prom",
+      "description": "commands applied on secondaries - zero on standalone, steady on replica set and shards",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 27
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Replication operations /s by replica set  graf \u25b6",
+      "description": "commands applied on secondaries - zero on standalone, steady on replica set and shards",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 27
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Document operations /s (per process)  \u25c0 prom",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 35
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_document_operation_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Document operations /s (per process)  graf \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 35
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_document_operation_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Average operation latency by type  \u25c0 prom",
+      "description": "average latency per op: rate of the cumulative latency counter over rate of the operation count (kindCounter since the kind fix)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 43
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace((sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))) / (sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Average operation latency by type  graf \u25b6",
+      "description": "average latency per op: rate of the cumulative latency counter over rate of the operation count (kindCounter since the kind fix)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 43
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace((sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))) / (sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Connections by type  \u25c0 prom",
+      "description": "up-down counter, point-in-time values",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 51
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Connections by type  graf \u25b6",
+      "description": "up-down counter, point-in-time values",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 51
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Member & process health  \u25c0 prom",
+      "description": "replication member health per member (1 = healthy) plus process reachability (mongodb.health) averaged per topology",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 59
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "ok {{topology}} {{mongodb_process_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Member & process health  graf \u25b6",
+      "description": "replication member health per member (1 = healthy) plus process reachability (mongodb.health) averaged per topology",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 59
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "ok {{topology}} {{mongodb_process_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Replication lag (deduped by replica set)  \u25c0 prom",
+      "description": "gauge, seconds a member trails its primary - standalone has none",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 67
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_lag_time_seconds * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Replication lag (deduped by replica set)  graf \u25b6",
+      "description": "gauge, seconds a member trails its primary - standalone has none",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 67
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_lag_time_seconds * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Oplog window & size (avg per member)  \u25c0 prom",
+      "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 75
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{topology}} window",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_used_size_bytes[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{topology}} used",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_size_bytes[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{topology}} size",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/ used$"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/ size$"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Oplog window & size (avg per member)  graf \u25b6",
+      "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 75
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{topology}} window",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_used_size_bytes[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{topology}} used",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_size_bytes[15m]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{topology}} size",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/ used$"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/ size$"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Network I/O (per process)  \u25c0 prom",
+      "description": "counters rated to bytes/s (network bytes are kindCounter since the kind fix)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 83
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_receive_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "rx {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_transmit_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "tx {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Network I/O (per process)  graf \u25b6",
+      "description": "counters rated to bytes/s (network bytes are kindCounter since the kind fix)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 83
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_receive_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "rx {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_transmit_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "tx {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "WiredTiger cache (per process)  \u25c0 prom",
+      "description": "up-down counters, point-in-time bytes. On an idle deployment used/dirty creep up slowly (MB/h) - that is the agent's own polling loading catalog pages plus mongod session housekeeping; checkpoints reset dirty periodically. Only a concern when used approaches total or dirty grows unbounded between checkpoints.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 91
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_used * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "used {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_dirty * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "dirty {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "WiredTiger cache (per process)  graf \u25b6",
+      "description": "up-down counters, point-in-time bytes. On an idle deployment used/dirty creep up slowly (MB/h) - that is the agent's own polling loading catalog pages plus mongod session housekeeping; checkpoints reset dirty periodically. Only a concern when used approaches total or dirty grows unbounded between checkpoints.",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 91
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_used * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "used {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_dirty * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "dirty {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Shard chunks & data size  \u25c0 prom",
+      "description": "up-down counters by shard, from the config server",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 99
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "last_over_time(mongodb_shard_chunk_count[15m])",
+          "legendFormat": "chunks {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "last_over_time(mongodb_shard_size_owned_bytes[15m])",
+          "legendFormat": "size {{mongodb_shard}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^size .*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Shard chunks & data size  graf \u25b6",
+      "description": "up-down counters by shard, from the config server",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 99
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "last_over_time(mongodb_shard_chunk_count[15m])",
+          "legendFormat": "chunks {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "last_over_time(mongodb_shard_size_owned_bytes[15m])",
+          "legendFormat": "size {{mongodb_shard}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^size .*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Memory usage by type (per process)  \u25c0 prom",
+      "description": "virtual is large by design (WiredTiger cache reservation + mmap'd address space); resident is the interesting one",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 107
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, type) (mongodb_memory_usage_bytes * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Memory usage by type (per process)  graf \u25b6",
+      "description": "virtual is large by design (WiredTiger cache reservation + mmap'd address space); resident is the interesting one",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 107
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, type) (mongodb_memory_usage_bytes * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 100,
+      "type": "row",
+      "title": "Full catalog - operations & locks",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 115
+      }
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Page faults & asserts  \u25c0 prom",
+      "description": "counters rated to ops/s - asserts split by regular/warning/msg",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 116
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_page_faults_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "page faults {{topology}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (rate(mongodb_assert_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "asserts {{topology}} {{type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Page faults & asserts  graf \u25b6",
+      "description": "counters rated to ops/s - asserts split by regular/warning/msg",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 116
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_page_faults_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "page faults {{topology}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (rate(mongodb_assert_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "asserts {{topology}} {{type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Global lock time  \u25c0 prom",
+      "description": "global lock time counter rated (ms/s); queue depth by access type",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 124
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_global_lock_time_milliseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_global_lock_current_queue_count * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "queued {{topology}} {{mongodb_process_type}} {{type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^queued.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Global lock time  graf \u25b6",
+      "description": "global lock time counter rated (ms/s); queue depth by access type",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 124
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_global_lock_time_milliseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_global_lock_current_queue_count * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "queued {{topology}} {{mongodb_process_type}} {{type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^queued.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "short"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Lock acquisitions, waits & deadlocks  \u25c0 prom",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 132
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "acquire {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_wait_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "wait {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_deadlock_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "deadlock {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Lock acquisitions, waits & deadlocks  graf \u25b6",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 132
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "acquire {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_wait_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "wait {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_deadlock_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "deadlock {{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Lock acquire time  \u25c0 prom",
+      "description": "counter of microseconds spent acquiring, rated",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 140
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_time_microseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Lock acquire time  graf \u25b6",
+      "description": "counter of microseconds spent acquiring, rated",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 140
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, lock_type) (rate(mongodb_lock_acquire_time_microseconds_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{lock_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "Query executor & scan/order  \u25c0 prom",
+      "description": "counters rated - scanned documents by what was scanned (index/collection)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 148
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (rate(mongodb_query_executor_scanned_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "scanned {{topology}} {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_operation_scan_and_order_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "scan+order {{topology}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 22,
+      "type": "timeseries",
+      "title": "Query executor & scan/order  graf \u25b6",
+      "description": "counters rated - scanned documents by what was scanned (index/collection)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 148
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (rate(mongodb_query_executor_scanned_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "scanned {{topology}} {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_operation_scan_and_order_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "scan+order {{topology}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Killed, TTL deleted & documents returned  \u25c0 prom",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 156
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_operation_killed_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "killed {{topology}} {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_ttl_deleted_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "ttl {{topology}} {{mongodb_process_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_document_returned_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "returned {{topology}} {{mongodb_process_type}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Killed, TTL deleted & documents returned  graf \u25b6",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 156
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_operation_killed_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "killed {{topology}} {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_ttl_deleted_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "ttl {{topology}} {{mongodb_process_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type) (rate(mongodb_document_returned_count_total[$__rate_interval]) * on(instance) group_left(mongodb_replica_set, mongodb_process_type) (max by (instance, mongodb_replica_set, mongodb_process_type) (target_info{mongodb_process_type=~\"mongod|mongos\"}))), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "returned {{topology}} {{mongodb_process_type}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": "timeseries",
+      "title": "Latency observations & connection churn  \u25c0 prom",
+      "description": "counters rated - latency sample count and new connections",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 164
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_operation_latency_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "latency samples {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_connection_created_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "created {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 24,
+      "type": "timeseries",
+      "title": "Latency observations & connection churn  graf \u25b6",
+      "description": "counters rated - latency sample count and new connections",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 164
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_operation_latency_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "latency samples {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_connection_created_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "created {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Active reads / writes  \u25c0 prom",
+      "description": "up-down counters, point-in-time",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 172
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_active_reads * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "reads {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_active_writes * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "writes {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Active reads / writes  graf \u25b6",
+      "description": "up-down counters, point-in-time",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 172
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_active_reads * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "reads {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_active_writes * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "writes {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Tickets  \u25c0 prom",
+      "description": "available tickets per type and concurrent transaction tickets in use",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 180
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, type) (mongodb_ticket_available * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "available {{type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port, mongodb_wt_concurrent_transaction_ticket_type) (mongodb_wt_concurrent_transaction_ticket_in_use * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "in use {{mongodb_wt_concurrent_transaction_ticket_type}} {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Tickets  graf \u25b6",
+      "description": "available tickets per type and concurrent transaction tickets in use",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 180
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, type) (mongodb_ticket_available * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "available {{type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port, mongodb_wt_concurrent_transaction_ticket_type) (mongodb_wt_concurrent_transaction_ticket_in_use * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "in use {{mongodb_wt_concurrent_transaction_ticket_type}} {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 27,
+      "type": "timeseries",
+      "title": "Sessions & cursors  \u25c0 prom",
+      "description": "up-down counters, cursor timeout is a counter rated",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 188
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_session_count * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "sessions {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_cursor_count * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "cursors {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "timed out {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^timed out.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ops"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 27,
+      "type": "timeseries",
+      "title": "Sessions & cursors  graf \u25b6",
+      "description": "up-down counters, cursor timeout is a counter rated",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 188
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_session_count * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "sessions {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_cursor_count * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "cursors {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "timed out {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^timed out.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "ops"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "timeseries",
+      "title": "Network requests & cache operations  \u25c0 prom",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 196
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_request_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "requests {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port, type) (rate(mongodb_cache_operations_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "cache ops {{type}} {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 28,
+      "type": "timeseries",
+      "title": "Network requests & cache operations  graf \u25b6",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 196
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_request_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "requests {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port, type) (rate(mongodb_cache_operations_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "cache ops {{type}} {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 29,
+      "type": "timeseries",
+      "title": "mongod uptime (per process)  \u25c0 prom",
+      "description": "uptime seconds per process - restarts show as drops to zero",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 204
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_uptime_milliseconds_total * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"}))) / 1000",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 29,
+      "type": "timeseries",
+      "title": "mongod uptime (per process)  graf \u25b6",
+      "description": "uptime seconds per process - restarts show as drops to zero",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 204
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_uptime_milliseconds_total * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"}))) / 1000",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 101,
+      "type": "row",
+      "title": "Full catalog - storage & databases",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 212
+      }
+    },
+    {
+      "id": 31,
+      "type": "timeseries",
+      "title": "Data & storage size (per process)  \u25c0 prom",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 213
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_data_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "data {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_storage_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "storage {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 31,
+      "type": "timeseries",
+      "title": "Data & storage size (per process)  graf \u25b6",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 213
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_data_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "data {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_storage_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "storage {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 32,
+      "type": "timeseries",
+      "title": "Indexes (per process)  \u25c0 prom",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 221
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "count {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "size {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^size.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 32,
+      "type": "timeseries",
+      "title": "Indexes (per process)  graf \u25b6",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 221
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "count {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_size_bytes[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "size {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^size.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Collections, views, databases, objects (per process)  \u25c0 prom",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 229
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_collection_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "collections {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_view_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "views {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_database_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "dbs {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_object_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "objects {{server_address}}:{{server_port}}",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Collections, views, databases, objects (per process)  graf \u25b6",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 229
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_collection_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "collections {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_view_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "views {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_database_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "dbs {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_object_count[15m]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "objects {{server_address}}:{{server_port}}",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 34,
+      "type": "timeseries",
+      "title": "WiredTiger log & fsync (per process)  \u25c0 prom",
+      "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 237
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, mongodb_wt_log_operation_type) (rate(mongodb_wt_log_operation_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_wt_log_operation_type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_fsync_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "fsyncs {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_write_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "written {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_sync_time_seconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "sync {{server_address}}:{{server_port}}",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^written.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^sync.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 34,
+      "type": "timeseries",
+      "title": "WiredTiger log & fsync (per process)  graf \u25b6",
+      "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 237
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, mongodb_wt_log_operation_type) (rate(mongodb_wt_log_operation_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_wt_log_operation_type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_fsync_count_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "fsyncs {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_write_bytes_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "written {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_sync_time_seconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "sync {{server_address}}:{{server_port}}",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^written.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "Bps"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^sync.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "percentunit"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 35,
+      "type": "timeseries",
+      "title": "WiredTiger cache I/O & size (per process)  \u25c0 prom",
+      "description": "read/written bytes rated, total cache size direct",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 245
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_read_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "read {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_written_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "written {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_total * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "total {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^total.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 35,
+      "type": "timeseries",
+      "title": "WiredTiger cache I/O & size (per process)  graf \u25b6",
+      "description": "read/written bytes rated, total cache size direct",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 245
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_read_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "read {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_written_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "written {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_total * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "total {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^total.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": "timeseries",
+      "title": "Agent internals  \u25c0 prom",
+      "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 253
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "mongodb_mms_agent_uptime_seconds * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
+          "legendFormat": "uptime {{host_name}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "mongodb_mms_agent_goroutine_count * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
+          "legendFormat": "goroutines {{host_name}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "mongodb_mms_agent_memory_usage_bytes * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
+          "legendFormat": "memory {{host_name}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^memory.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^uptime.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 36,
+      "type": "timeseries",
+      "title": "Agent internals  graf \u25b6",
+      "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 253
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "mongodb_mms_agent_uptime_seconds * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
+          "legendFormat": "uptime {{host_name}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "mongodb_mms_agent_goroutine_count * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
+          "legendFormat": "goroutines {{host_name}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "mongodb_mms_agent_memory_usage_bytes * on(instance) group_left(host_name) (max by (instance, host_name) (target_info{mongodb_process_type=\"\"}))",
+          "legendFormat": "memory {{host_name}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^memory.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^uptime.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "s"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 37,
+      "type": "timeseries",
+      "title": "Shard documents owned / orphaned  \u25c0 prom",
+      "description": "up-down counters by shard",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 261
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "last_over_time(mongodb_shard_documents_owned[15m])",
+          "legendFormat": "owned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "last_over_time(mongodb_shard_documents_orphaned[15m])",
+          "legendFormat": "orphaned {{mongodb_shard}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 37,
+      "type": "timeseries",
+      "title": "Shard documents owned / orphaned  graf \u25b6",
+      "description": "up-down counters by shard",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 261
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "last_over_time(mongodb_shard_documents_owned[15m])",
+          "legendFormat": "owned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "last_over_time(mongodb_shard_documents_orphaned[15m])",
+          "legendFormat": "orphaned {{mongodb_shard}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 38,
+      "type": "timeseries",
+      "title": "Shard size orphaned & flow control  \u25c0 prom",
+      "description": "orphaned bytes by shard; flow control time rated per process",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 269
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "max by (mongodb_shard) (last_over_time(mongodb_shard_size_orphaned_bytes[15m]))",
+          "legendFormat": "orphaned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_flow_control_time_microseconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "flow ctl {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^flow ctl.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "\u00b5s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^orphaned.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 38,
+      "type": "timeseries",
+      "title": "Shard size orphaned & flow control  graf \u25b6",
+      "description": "orphaned bytes by shard; flow control time rated per process",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 269
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "max by (mongodb_shard) (last_over_time(mongodb_shard_size_orphaned_bytes[15m]))",
+          "legendFormat": "orphaned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_flow_control_time_microseconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "flow ctl {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^flow ctl.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "\u00b5s"
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": {
+                "pattern": "/^orphaned.*/"
+              }
+            },
+            "properties": [
+              {
+                "id": "unit",
+                "value": "bytes"
+              }
+            ]
+          }
+        ]
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Replication member state (deduped by replica set)  \u25c0 prom",
+      "description": "gauge encoding the member state (PRIMARY/SECONDARY/...)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 277
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_state_ratio * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Replication member state (deduped by replica set)  graf \u25b6",
+      "description": "gauge encoding the member state (PRIMARY/SECONDARY/...)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 277
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_state_ratio * on(instance) group_left(mongodb_replica_set) (max by (instance, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "Operation time by type (top, per process)  \u25c0 prom",
+      "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 285
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, operation) (rate(mongodb_operation_time_milliseconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{operation}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "Operation time by type (top, per process)  graf \u25b6",
+      "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 285
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, operation) (rate(mongodb_operation_time_milliseconds_total[$__rate_interval]) * on(instance) group_left(server_address, server_port, mongodb_replica_set) (max by (instance, server_address, server_port, mongodb_replica_set) (target_info{mongodb_process_type=~\"mongod|mongos\"})))",
+          "legendFormat": "{{operation}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 41,
+      "type": "stat",
+      "title": "mongod versions  \u25c0 prom",
+      "description": "processes per mongod version - version skew shows up here during rolling upgrades",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 293
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
+          "legendFormat": "{{mongodb_version}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 41,
+      "type": "stat",
+      "title": "mongod versions  graf \u25b6",
+      "description": "processes per mongod version - version skew shows up here during rolling upgrades",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 293
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "count by (mongodb_version) (target_info{mongodb_process_type=\"mongod\"})",
+          "legendFormat": "{{mongodb_version}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 42,
+      "type": "stat",
+      "title": "agent versions  \u25c0 prom",
+      "description": "agents per agent version - rollout skew across hosts",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 0,
+        "y": 297
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "targets": [
+        {
+          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
+          "legendFormat": "{{service_version}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 42,
+      "type": "stat",
+      "title": "agent versions  graf \u25b6",
+      "description": "agents per agent version - rollout skew across hosts",
+      "gridPos": {
+        "h": 4,
+        "w": 12,
+        "x": 12,
+        "y": 297
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "grafana-otel"
+      },
+      "targets": [
+        {
+          "expr": "count by (service_version) (target_info{mongodb_process_type=\"\"})",
+          "legendFormat": "{{service_version}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "grafana-otel"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto"
+      }
+    }
+  ]
+}

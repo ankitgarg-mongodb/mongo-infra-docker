@@ -26,6 +26,7 @@ For more complex tests the following have been included already. Nothing is stop
 | Proxy | Yes | Squid running on port `proxy.om.internal:3128` |
 | SMTP | Yes | `smtp.om.internal` on 1025, web viewer in 1080 |
 | Prometeus/Grafana | Yes | [Enable Prometheus](/prometheus/README.md) |
+| OTLP Metrics Receiver | Yes | [OTel Receiver](/otel-receiver/README.md) for MongoDB Agent OTLP metrics, with TLS/mTLS |
 | LDAP | Yes | [Authentik](/authentik/README.md) |
 | OIDC | Maybe | [Authentik](/authentik/README.md) |
 | SAML | Yes | [Authentik](/authentik/README.md) |

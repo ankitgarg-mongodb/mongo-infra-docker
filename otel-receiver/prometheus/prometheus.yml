@@ -1,0 +1,4 @@
+# Metrics arrive through the native OTLP receiver (enabled by the
+# --web.enable-otlp-receiver flag), nothing is scraped
+global:
+  scrape_interval: 15s

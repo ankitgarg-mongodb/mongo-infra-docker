@@ -1,0 +1,131 @@
+services:
+
+  # Prometheus with its native OTLP receiver - the agent's first backend
+  # metrics arrive at /api/v1/otlp/v1/metrics, nothing is scraped
+  prometheus:
+    container_name: prometheus
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-otlp-receiver
+      - --web.config.file=/etc/prometheus/web-config.yml
+      - --storage.tsdb.path=/prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 2G
+        reservations:
+          cpus: '0.500'
+          memory: 1G
+    hostname: prometheus.internal
+    image: prom/prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/web-config.yml:/etc/prometheus/web-config.yml:ro
+      - ./certs:/certs:ro
+      - prometheus-data:/prometheus
+
+  # Grafana's OTLP backend, the grafana/otel-lgtm image (collector + prometheus + grafana)
+  # the agent's second backend - metrics arrive at /v1/metrics on port 4318
+  grafana-otel:
+    container_name: grafana-otel
+    deploy:
+      resources:
+        limits:
+          cpus: '2.000'
+          memory: 2G
+        reservations:
+          cpus: '1.000'
+          memory: 1G
+    hostname: grafana-otel.internal
+    image: grafana/otel-lgtm:0.29.0
+    restart: unless-stopped
+    environment:
+      # collector logs in `docker logs grafana-otel`, handy when a config change breaks it
+      ENABLE_LOGS_OTELCOL: "true"
+    ports:
+      - "4320:4318" # OTLP/HTTP for the agent
+    volumes:
+      - ./otel-collector.yaml:/otel-lgtm/otelcol-config.yaml:ro
+      - ./certs:/certs:ro
+      - grafana-otel-data:/data
+
+  # Elasticsearch - native OTLP/HTTP metrics ingest on the standard port,
+  # metrics land in the metrics-generic.otel-default data stream
+  # security is off locally so the agent needs no headers, add xpack.security
+  # settings when you want API key auth
+  elasticsearch:
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    deploy:
+      resources:
+        limits:
+          cpus: '2.000'
+          memory: 3G
+        reservations:
+          cpus: '1.000'
+          memory: 2G
+    hostname: elasticsearch.internal
+    image: elasticsearch:9.2.1
+    restart: unless-stopped
+    ports:
+      - "9200:9200" # OTLP/HTTP for the agent and the HTTP API
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+
+  # Dedicated collector - the optional 4th backend: receives the agent's OTLP
+  # and fans out to prometheus, grafana-otel and elasticsearch in one hop
+  otelcol:
+    container_name: otelcol
+    command: ["--config=/etc/otelcol/config.yaml"]
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1G
+        reservations:
+          cpus: '0.500'
+          memory: 0.5G
+    hostname: otelcol.internal
+    image: otel/opentelemetry-collector:0.156.0
+    restart: unless-stopped
+    ports:
+      - "4322:4318" # OTLP/HTTP for the agent
+    volumes:
+      - ./otelcol/collector.yaml:/etc/otelcol/config.yaml:ro
+      - ./certs:/certs:ro
+
+  # The dashboarding UI - pre-provisioned datasources for the backends above
+  # username: admin
+  # password: admin / it will ask you to change after first login
+  grafana:
+    container_name: grafana
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1G
+        reservations:
+          cpus: '0.500'
+          memory: 0.5G
+    hostname: grafana.internal
+    image: grafana/grafana-enterprise
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./certs:/certs:ro
+      - grafana-data:/var/lib/grafana
+
+volumes:
+  prometheus-data:
+  grafana-otel-data:
+  grafana-data:
+  es-data:
