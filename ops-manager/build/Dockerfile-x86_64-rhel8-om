@@ -31,7 +31,6 @@ RUN dnf -y install openssh-server iputils hostname cyrus-sasl cyrus-sasl-gssapi 
     echo "mongodb.release.modulePreference=enterpriseRequired" >> /opt/mongodb/mms/conf/conf-mms.properties
 
 EXPOSE 8080
-EXPOSE 8443
 EXPOSE 25999
 EXPOSE 27700
 EXPOSE 27701

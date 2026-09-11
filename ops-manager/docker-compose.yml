@@ -23,11 +23,15 @@ services:
     privileged: true
     ports:
       - "8080:8080"
-      - "8443:8443"
       - "25999:25999"
+      - "27017:27017"
       - "27700-27719:27700-27719"
     volumes:
       - ./certs:/certs
+      - ops_appdb:/var/lib/mongo
+      - ops_mms:/opt/mongodb/mms
+      - ops_head:/head
+      - ops_filesystem:/filesystem
 
   node1:
     build:
@@ -51,7 +55,9 @@ services:
     volumes:
       - ./mongodb-mms:/etc/mongodb-mms:ro
       - ./certs:/certs
-    ports: 
+      - node1_data:/data
+      - node1_agent:/var/lib/mongodb-mms-automation
+    ports:
       - "27171:27017"
 
   node2:
@@ -76,7 +82,9 @@ services:
     volumes:
       - ./mongodb-mms:/etc/mongodb-mms:ro
       - ./certs:/certs
-    ports: 
+      - node2_data:/data
+      - node2_agent:/var/lib/mongodb-mms-automation
+    ports:
       - "27172:27017"
 
   node3:
@@ -101,7 +109,9 @@ services:
     volumes:
       - ./mongodb-mms:/etc/mongodb-mms:ro
       - ./certs:/certs
-    ports: 
+      - node3_data:/data
+      - node3_agent:/var/lib/mongodb-mms-automation
+    ports:
       - "27173:27017"
 
   metadata:
@@ -128,6 +138,7 @@ services:
     volumes:
       - ./mongodb-mms:/etc/mongodb-mms:ro
       - ./certs:/certs
+      - metadata_data:/data
 
   oplog:
     build:
@@ -153,6 +164,7 @@ services:
     volumes:
       - ./mongodb-mms:/etc/mongodb-mms:ro
       - ./certs:/certs
+      - oplog_data:/data
 
   blockstore:
     build:
@@ -178,6 +190,7 @@ services:
     volumes:
       - ./mongodb-mms:/etc/mongodb-mms:ro
       - ./certs:/certs
+      - blockstore_data:/data
 
   proxy:
     image: diouxx/squid
@@ -302,3 +315,18 @@ services:
     restart: unless-stopped
 networks:
   main:
+
+volumes:
+  ops_appdb:
+  ops_mms:
+  ops_head:
+  ops_filesystem:
+  node1_data:
+  node1_agent:
+  node2_data:
+  node2_agent:
+  node3_data:
+  node3_agent:
+  metadata_data:
+  oplog_data:
+  blockstore_data:

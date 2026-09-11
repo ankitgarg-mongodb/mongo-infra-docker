@@ -43,7 +43,6 @@ RUN cd /opt/mongodb/mms/mongodb-releases/ && \
     mv mongodb-linux-aarch64-enterprise-rhel82-6.0.15 mongodb-linux-x86_64-enterprise-rhel80-6.0.15
 
 EXPOSE 8080
-EXPOSE 8443
 EXPOSE 25999
 EXPOSE 27700
 EXPOSE 27701

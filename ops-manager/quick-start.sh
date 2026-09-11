@@ -9,13 +9,13 @@ then
   exit 1
 fi
 
-version_options=("8-0-12" "7-0-17" "downloaded")
+version_options=("8-0-26" "7-0-17" "downloaded")
 echo Please choose a version: 
 select opt in "${version_options[@]}"
 do
   case $opt in
-    8-0-12)
-      export version='8.0.12'
+    8-0-26)
+      export version='8.0.26'
       export version_for_url='8.0'
       touch downloads/8.ver 2>&1
       rm downloads/7.ver 2>&1
@@ -87,14 +87,14 @@ do
 done
 
 # Set up urls based on the above parameters
-if [[ "$version" == "8.0.12" ]] # Updates JDK to jdk-21.0.8+9.
+if [[ "$version" == "8.0.26" ]] # Updates JDK to jdk-21.0.12+8.
 then
-  urls=("https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/${version_for_url}/${platform}/RPMS/mongodb-enterprise-server-8.0.1-1.el8.${platform}.rpm" "https://downloads.mongodb.com/on-prem-mms/rpm/mongodb-mms-8.0.12.500.20250804T1959Z.x86_64.rpm" "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_aarch64_linux_hotspot_21.0.8_9.tar.gz" "http://localhost:8080/download/agent/automation/mongodb-mms-automation-agent-manager-latest.${platform}.${distro}.rpm")
+  urls=("https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/${version_for_url}/${platform}/RPMS/mongodb-enterprise-server-8.0.1-1.el8.${platform}.rpm" "https://downloads.mongodb.com/on-prem-mms/rpm/mongodb-mms-8.0.26.500.20260812T1154Z.x86_64.rpm" "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.12%2B8/OpenJDK21U-jdk_aarch64_linux_hotspot_21.0.12_8.tar.gz")
 fi
 
 if [[ "$version" == "7.0.17" ]] # Updates JDK to jdk-17.0.16+8.
 then
-  urls=("https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/${version_for_url}/${platform}/RPMS/mongodb-enterprise-server-7.0.0-1.el8.${platform}.rpm" "https://downloads.mongodb.com/on-prem-mms/rpm/mongodb-mms-7.0.17.500.20250806T1728Z.x86_64.rpm" "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.16%2B8/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.16_8.tar.gz" "http://localhost:8080/download/agent/automation/mongodb-mms-automation-agent-manager-latest.${platform}.${distro}.rpm")
+  urls=("https://repo.mongodb.com/yum/redhat/8/mongodb-enterprise/${version_for_url}/${platform}/RPMS/mongodb-enterprise-server-7.0.0-1.el8.${platform}.rpm" "https://downloads.mongodb.com/on-prem-mms/rpm/mongodb-mms-7.0.17.500.20250806T1728Z.x86_64.rpm" "https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.16%2B8/OpenJDK17U-jdk_aarch64_linux_hotspot_17.0.16_8.tar.gz")
 fi
 
 # echo === Downloading AppDB and Ops Manager ===
@@ -128,12 +128,5 @@ echo
 echo mmsGroupId=xxxxxxxxxxxxxxxxxx
 echo mmsApiKey=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 echo
-echo Press any key to attempt agent download from http://localhost:8080 using the above configuration settings
-read -n 1 -p "Press Any Key to attempt Agent setup" mainmenuinput
-echo
-echo --- Downloading Agent ---
-curl -o downloads/mongodb-agent.${platform}.rpm -L "${urls[3]}"
-docker compose up -d node1
-echo
-echo --- Please check Ops Managers server tab for your running agents ---
+echo Use this config with the MongoDB Agent on your local machine
 echo Done
