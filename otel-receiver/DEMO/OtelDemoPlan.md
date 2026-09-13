@@ -105,6 +105,8 @@ Behavior when things are unreachable:
   ```
 
   → `POST /opentelemetry/v1/metrics HTTP/1.1` + headers (`Content-Encoding: gzip` when the backend sets gzip, `Content-Type: application/x-protobuf`), chunked framing (chunk size in hex) around the gzip protobuf body, terminating `0` chunk. Server exits after one request — no stale listeners; the agent logs that cycle as `export ok`.
+- Header nuance: `Accept-Encoding: gzip` (always present) is the agent accepting gzip *responses* — the body is compressed only when the config sets `compression: "gzip"` (then `Transfer-Encoding: chunked`; without it you get `Content-Length` and a plain body).
+- The one-shot server grabs the first request of the cycle = the agent self-health payload (sorted first). Uncompressed bodies are partly readable as-is: `strings /tmp/otel-req.bin | grep mongodb` — attribute keys (`host.name`, `mms.group_id`), `go1.27.0`, and the `mongodb.mms.agent.*` metric names are visible in cleartext.
 
 **Per-cycle export log (every 30s) — DEMO**
 
@@ -203,15 +205,23 @@ tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffe
 
 ### Endpoint defaults — DEMO
 
-- Packaged receivers all use explicit ports and paths (prep table) — defaults are shown by catching the raw request; no real 4318 receiver needed.
-- Apply `{"enabled":true,"backends":[{"endpoint":"http://localhost"}]}` (no port, no path), then:
+- Packaged receivers all use explicit ports and paths (prep table) — defaults are shown by catching the raw request; no real 4318 receiver needed:
+- apply `{"enabled":true,"backends":[{"endpoint":"http://localhost:4318"}]}` (no path), then:
 
   ```shell
   python3 catch-request.py 4318 > /tmp/otel-req.bin   # same one-shot server as in "On the wire — raw view"
   head -c 900 /tmp/otel-req.bin | cat -v              # POST /v1/metrics HTTP/1.1, Host: localhost:4318
   ```
 
+- No **port**: `{"endpoint":"http://localhost"}` → the scheme's default port is used — **80 for `http://`, 443 for `https://`, not 4318** (4318 is the SDK's target only when no endpoint is configured at all). Zero-setup proof — the agent log shows the resolved target itself:
+
+  ```
+  Otel: http://localhost: export failed for 12 of 12 resources: …
+  Post "http://localhost/v1/metrics": dial tcp [::1]:80: connect: connection refused
+  ```
+
 - Custom path is honored as-is: `http://localhost:4318/custom/metrics` → `POST /custom/metrics`.
+- Restore the real backend afterwards with `bash agent-config.sh`.
 
 ### TLS use cases — DEMO
 

@@ -1,0 +1,67 @@
+ ~/R/mongo-infra-docker/otel-receiver  on ankit-garg/OmOnlyOnDocker >1 *1 +1 !1 ?2  python3 catch-request.py 4318 > /tmp/otel-req.bin
+
+ ~/R/mongo-infra-docker/otel-receiver  on ankit-garg/OmOnlyOnDocker >1 *1 +1 !2 ?2  head -c 900 /tmp/otel-req.bin | cat -v
+POST /v1/metrics HTTP/1.1^M
+Host: localhost:4318^M
+User-Agent: OTel Go OTLP over HTTP/protobuf metrics exporter/1.43.0^M
+Content-Length: 875^M
+Content-Type: application/x-protobuf^M
+Accept-Encoding: gzip^M
+^M
+
+�^F
+�^B
+^[
+        host.name^R^N
+^LM-LDX4WW729M
+*
+^Lmms.group_id^R^Z
+^X6aa3eb679720ba764a9ac5d3
+^S
+^Kprocess.pid^R^D^Xȼ^A
+^\
+^Tprocess.runtime.name^R^D
+^Bgo
+%
+^Wprocess.runtime.version^R
+
+^Hgo1.27.0
+=
+^Sservice.instance.id^R&
+$03f2ee19-3887-5826-8302-d02eaff15914
+^_
+^Lservice.name^R^O
+^Mmongodb-agent
+"
+^Qservice.namespace^R^M
+^Kmongodb.mms
+^\
+^Oservice.version^R
+^G110.0.0^R�^C
+^X
+^Vmongodb.mms.monitoring^Rv
+^Xmongodb.mms.agent.uptime^R8Time elapsed since the monitoring agent process started.^Z^As*^]
+^[^QM-^X;M-^A�S��^X^Yh|̹Z��^X1^@^@^@^@^@^@^@^@^RM-^Q^A
+!mongodb.mms.agent.goroutine.count^R?Number of goroutines currently running in the monitoring agent.^Z^L{goroutines}*^]
+^[^Q^HSM-^A�S��^X^YPM-^@̹Z��^X1i^C^@^@^@^@^@^@^R�^A
+^^mongodb.mms.agent.memory.usage^R8Go runtime heap memory of the mon%                                                              
+
+ ~/R/mongo-infra-docker/otel-receiver  on ankit-garg/OmOnlyOnDocker >1 *1 +1 !2 ?2  python3 catch-request.py 4318 > /tmp/otel-req.bin
+
+ ~/R/mongo-infra-docker/otel-receiver  on ankit-garg/OmOnlyOnDocker >1 *1 +1 !2 ?3  head -c 900 /tmp/otel-req.bin | cat -v
+POST /v1/metrics HTTP/1.1^M
+Host: localhost:4318^M
+User-Agent: OTel Go OTLP over HTTP/protobuf metrics exporter/1.43.0^M
+Transfer-Encoding: chunked^M
+Content-Encoding: gzip^M
+Content-Type: application/x-protobuf^M
+Accept-Encoding: gzip^M
+^M
+24a^M
+^_M-^K^H^@^@^@^@^@^@�lM-^RMk^SA^\�M-^[4��7m��M-^W5M--u^T_�M-^Z���"M-^B^H^�'���d�M-^_�`ffM-^YM-^Y-^D^Q�
+^^��!�)赾��C=z�M-^S^_@�GI���vO�>�oM-^_^_���c�M-^SM-^GeM-^X�)c�d^BM-^]y(nM-^T��}T��l^F�^MXM-^C�^PM-^F�Z��^VM-^OM-^\^R�^Mƪ�i4����f���,�GUXM-^B�D�^PM-^M�     M-^OM-^\M-^B��}^NV���N��^B�C^E��
+�����m�M-^F+�^@M-^\M-^HM-^UOM-^C&��^V,^Y��<Dʥ�L^N_"�*\���^@�oM-^W�M--V�\o^EM-^Mr��^E��^KM-^Pu�~����^B^T'�h{^A�M-^DM-^R�M-^J:e^V��p^V^O^VL�Bt�`6kQ!^L��¤3QM-^\M-^A��QM-^Oz��ip��M-^A>^UJr�4M-^W��^M��d�I�dx^XN�!^WH��^RM-^C^Q1\M-^FHl^O�>NF}M-^RM-^]^S1M-^ViM-^K^Q-���yX^|����M-^W{��9�ͷM-^]W{��?M-^U=�M-^K^\\<<^\+M--R�%�P��:�^_��M-^CM-^Z�.�^W^Y^R�Z���^AѩM-^T\�M-^D�#�h��tM-^_{6rz�'sr�eNf:s�M-^RM-^C��N^BM-^E�^CM-^Z^Z^V�Ӻ�Hv^[H^OYB��P�(M-^A^[�3 vM-^P -��^L�M-^^@}M-^Q��9���a���BaXqN���M-^W[��W!�^X��W?�M-^Gf^P^\M-^AM-^]ΰ9M-^X^]a\n�^F����^KC�tM--gmb�+^UM-^U���GM-^AV^O(W^U^S�P0S�iͧ��^A^@^A�M-^W%k^C^@^@^M
+0^M
+^M
+
+ ~/R/mongo-infra-docker/otel-receiver  on ankit-garg/OmOnlyOnDocker >1 *1 +1 !2 ?3                                ok  at 00:50:29 
