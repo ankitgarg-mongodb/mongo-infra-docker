@@ -213,15 +213,7 @@ tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffe
   head -c 900 /tmp/otel-req.bin | cat -v              # POST /v1/metrics HTTP/1.1, Host: localhost:4318
   ```
 
-- No **port**: `{"endpoint":"http://localhost"}` → the scheme's default port is used — **80 for `http://`, 443 for `https://`, not 4318** (4318 is the SDK's target only when no endpoint is configured at all). Zero-setup proof — the agent log shows the resolved target itself:
-
-  ```
-  Otel: http://localhost: export failed for 12 of 12 resources: …
-  Post "http://localhost/v1/metrics": dial tcp [::1]:80: connect: connection refused
-  ```
-
 - Custom path is honored as-is: `http://localhost:4318/custom/metrics` → `POST /custom/metrics`.
-- Restore the real backend afterwards with `bash agent-config.sh`.
 
 ### TLS use cases — DEMO
 
