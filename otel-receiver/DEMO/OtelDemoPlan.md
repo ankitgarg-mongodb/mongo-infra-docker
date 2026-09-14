@@ -236,88 +236,25 @@ Setup: TLS mode in `backends.conf`, applied by `bash quick-start.sh`. Certs in `
 
 ## Architecture recap
 
-Two views of the same thing: the flow (what runs, where things get parallel and isolated) and the storage (what lives where inside the emitter).
-
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph COLL["Existing collection cycle — unchanged"]
         M[mongod / mongos] --> MON[Host monitors<br/>serverStatus · dbStats · top · repl · chunks]
+        ACS[Agent stats collector<br/>agent self-stats — always pinged OM too]
     end
     MON -->|OM consumers → marshal + compress| OM[(Ops Manager)]
-    MON -->|same samples| TEE[otelTee<br/>errors logged + swallowed]
-    ACS[Agent stats collector] --> FAN[otelFanout]
-    TEE --> REC[Recorders<br/>status · dbStats · top · chunks · agentStats]
-    FAN --> REC
+    ACS -->|OM consumer → ping| OM
+    MON -->|otelTee<br/>errors logged + swallowed| REC[Recorders<br/>status · dbStats · top · chunks · agentStats]
+    ACS -->|otelFanout — the same tee, host-free| REC
     REC -->|set| SS[(seriesStore<br/>one per instrument)]
-    SS -->|Collect once per interval| LOOP[exportLoop]
+    SS -->|ManualReader.Collect once per interval| LOOP[exportLoop]
     LOOP -->|split by mms.host_ref<br/>one resource per process| G1[backend goroutine 1]
     LOOP -->|parallel| G2[backend goroutine 2<br/>only with --otelMultiBackend]
     G1 -->|POST /v1/metrics per entity| B[(prometheus · grafana-otel ·<br/>victoriametrics · otelcol fan-out)]
     G2 --> B
 ```
 
-- Everything right of the tee is additive and best-effort; the OM arm never depends on it.
-- Parallelism: one goroutine per backend, and within a backend, per-entity timeouts — a slow destination only costs its own cycle.
-- Config parsing happens once at module start (`executor.go:122`); a bad config kills the module (see *Fail-loud configuration*) rather than shipping garbage.
-
-```mermaid
-classDiagram
-    class Emitter {
-        +MeterProvider provider
-        +ManualReader reader
-        +Shutdown() idempotent, flushes once more
-    }
-    Emitter *-- "1 per backend" Exporter
-    Emitter *-- hostRegistry
-    Emitter *-- exportLoop
-    class hostRegistry {
-        +entries map hostKey→hostEntry
-        +RegisterHost() HostRef
-        +SetHostMeta() mongod⇄mongos, replset, version
-        +resourceFor(key)
-    }
-    class hostEntry {
-        +hostname :port
-        +processType replicaSet version
-        +Resource res
-    }
-    hostRegistry "1" *-- "*" hostEntry : one OS process
-    class Recorder {
-        <<Status/DBStats/Top/Chunks/AgentStats>>
-        +Record(fields) at collection time
-    }
-    Recorder o-- hostRegistry : host-scoped only
-    Recorder *-- "1 per metricDef" liveMetric
-    class liveMetric {
-        +metricDef name·unit·kind·gate
-        +seriesStore store
-    }
-    class seriesStore {
-        +points map attrSet→seriesPoint
-        +repeatStale counters only
-        +gen cycle counter for freshness
-        +20min idle eviction
-    }
-    class exportLoop {
-        +Collect from reader
-        +splitByRef strips mms.host_ref
-        +rotate hosts per cycle
-        +per-entity timeout
-    }
-    exportLoop ..> seriesStore : reads via Collect
-    exportLoop ..> hostRegistry : resolves resource per entity
-    Recorder ..> seriesStore : set()
-```
-
-- `metricDef` tables are the single source of truth for every metric — name, unit, kind, gate. Three naming groups: receiver-aligned `mongodb.*`, OM-only extras also under `mongodb.*`, agent self-health under `mongodb.mms.*`.
-- `hostRegistry` gives every process its own resource by construction; `mms.host_ref` is an internal routing key — stripped before anything hits the wire.
-- `seriesStore` implements the staleness semantics shown under *Resilience war stories* — counters repeat, gauges heal once then go silent, 20-min eviction — using generation counters, not wall clocks.
-
-## Wrap-up: how this was validated
-
-- **E2E (automated):** Datadog backend via `datadogreceiver` — header-based auth over HTTP, delta-metric handling.
-- **Manual:** this `otel-receiver` package — exactly the infrastructure demoed today (three receivers + collector fan-out, TLS/mTLS via `backends.conf`).
-- **Ground-truth tooling (this package):**
-  - `python3 compare-otel-appdb.py --port 27001` — side-by-side diff of OTLP samples vs OM appDB pings for the same collection cycle (TestPlan 3.2).
-  - `python3 check-monitored-hosts.py` — coverage matrix: every monitored process fresh on both OM and OTLP paths.
-- `~/Repos/mms-automation/Docs/TestPlan.md` — scenarios; conventions like the global "OM ping is never affected" invariant and the N+1 per-host export rule. Recorded outcomes in `~/Repos/mms-automation/Docs/TestPlanResults.md`.
+- "Per entity" = per monitored process (its host:port), plus one payload for the agent itself — 12 on this setup (11 processes + agent).
+- Everything right of the tee is additive, the OM arm never depends on it.
+- Parallelism: one goroutine per backend
+- Config parsing happens once at module start (`executor.go:122`). a bad config leads to failure in monitoring module start.
