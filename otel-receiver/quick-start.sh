@@ -201,12 +201,24 @@ ca_fp=$(openssl x509 -in certs/ca.crt -noout -fingerprint -sha256 2>/dev/null ||
     echo "    secureJsonData:"
     echo "      tlsCACert: \$__file{/certs/ca.crt}"
   fi
-  # greptimedb is the non-PromQL backend - grafana queries it with SQL over the
-  # mysql protocol (no auth by default, any user connects; session timezone UTC
-  # per the greptimedb docs). Panel queries are raw SQL, the SQL builder does
-  # not work against greptimedb
+  # greptimedb answers the prometheus querying API on its http port - the same
+  # panels and the Backend dropdown work on it like on any other backend; the
+  # header pins the default database (promoted OTLP metrics live in `public`)
   echo "  - name: greptimedb"
-  echo "    uid: greptimedb"
+  echo "    uid: greptimedb-prom"
+  echo "    type: prometheus"
+  echo "    access: proxy"
+  echo "    url: http://greptimedb:4000/v1/prometheus"
+  echo "    jsonData:"
+  echo "      httpHeaderName1: x-greptime-db-name"
+  echo "    secureJsonData:"
+  echo "      httpHeaderValue1: public"
+  # the non-PromQL path: greptimedb queried with raw SQL over the mysql
+  # protocol (no auth by default, any user connects; session timezone UTC per
+  # the greptimedb docs). Panel queries are raw SQL, the SQL builder does not
+  # work against greptimedb
+  echo "  - name: greptimedb-sql"
+  echo "    uid: greptimedb-sql"
   echo "    type: mysql"
   echo "    access: proxy"
   echo "    url: greptimedb:4002"

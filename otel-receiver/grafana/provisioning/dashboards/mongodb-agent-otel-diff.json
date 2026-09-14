@@ -1,7 +1,7 @@
 {
   "uid": "mongodb-agent-otel-diff",
   "title": "MongoDB Agent OTLP - Backend Diff",
-  "description": "Three-way drift comparison: prometheus | grafana-otel | victoriametrics - the same panels fed by the agent's export paths. The same metric on every column should show the same shape; divergence = a backend dropped or lagged data. Fully label-driven like the source dashboard.",
+  "description": "Four-way drift comparison: prometheus | grafana-otel | victoriametrics | greptimedb - the same panels fed by the agent's export paths. The same metric on every column should show the same shape; divergence = a backend dropped or lagged data. Fully label-driven like the source dashboard.",
   "tags": [
     "mongodb",
     "otel",
@@ -24,7 +24,7 @@
       "description": "agents, mongods, mongos, connections and version skew - one value per stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 0
       },
@@ -116,8 +116,8 @@
       "description": "agents, mongods, mongos, connections and version skew - one value per stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 0
       },
       "datasource": {
@@ -208,8 +208,8 @@
       "description": "agents, mongods, mongos, connections and version skew - one value per stat",
       "gridPos": {
         "h": 4,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 0
       },
       "datasource": {
@@ -294,13 +294,105 @@
       }
     },
     {
+      "id": 503,
+      "type": "stat",
+      "title": "Fleet stats    gt \u25b6",
+      "description": "agents, mongods, mongos, connections and version skew - one value per stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "count(count by (service_instance_id) (mongodb_mms_agent_uptime_seconds))",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          },
+          "legendFormat": "points"
+        },
+        {
+          "expr": "count(count by (service_instance_id) (mongodb_uptime_milliseconds_total{mongodb_process_type=\"mongod\"}))",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          },
+          "legendFormat": "mongods"
+        },
+        {
+          "expr": "count(count by (service_instance_id) (mongodb_uptime_milliseconds_total{mongodb_process_type=\"mongos\"}))",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          },
+          "legendFormat": "mongos"
+        },
+        {
+          "expr": "sum(mongodb_connection_count{type=\"current\"})",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          },
+          "legendFormat": "conns"
+        },
+        {
+          "expr": "count(count by (mongodb_version, service_instance_id) (mongodb_uptime_milliseconds_total))",
+          "legendFormat": "mongod ver",
+          "refId": "E",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "count(count by (service_version, service_instance_id) (mongodb_mms_agent_uptime_seconds))",
+          "legendFormat": "agent ver",
+          "refId": "F",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        }
+      }
+    },
+    {
       "id": 5,
       "type": "timeseries",
       "title": "Operations /s by replica set  prom \u25b6",
       "description": "resource-header replica set joined via target_info - processes without a replica set (standalone, config, mongos) land in the unclustered group",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 4
       },
@@ -345,8 +437,8 @@
       "description": "resource-header replica set joined via target_info - processes without a replica set (standalone, config, mongos) land in the unclustered group",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 4
       },
       "datasource": {
@@ -390,8 +482,8 @@
       "description": "resource-header replica set joined via target_info - processes without a replica set (standalone, config, mongos) land in the unclustered group",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 4
       },
       "datasource": {
@@ -429,13 +521,58 @@
       }
     },
     {
+      "id": 5,
+      "type": "timeseries",
+      "title": "Operations /s by replica set  gt \u25b6",
+      "description": "resource-header replica set joined via target_info - processes without a replica set (standalone, config, mongos) land in the unclustered group",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps",
+          "custom": {
+            "fillOpacity": 10
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 6,
       "type": "timeseries",
       "title": "Replication operations /s by replica set  prom \u25b6",
       "description": "commands applied on secondaries - zero on standalone, steady on replica set and shards",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 4
       },
@@ -477,8 +614,8 @@
       "description": "commands applied on secondaries - zero on standalone, steady on replica set and shards",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 4
       },
       "datasource": {
@@ -519,8 +656,8 @@
       "description": "commands applied on secondaries - zero on standalone, steady on replica set and shards",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 4
       },
       "datasource": {
@@ -555,12 +692,54 @@
       }
     },
     {
+      "id": 6,
+      "type": "timeseries",
+      "title": "Replication operations /s by replica set  gt \u25b6",
+      "description": "commands applied on secondaries - zero on standalone, steady on replica set and shards",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 7,
       "type": "timeseries",
       "title": "Document operations /s (per process)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 4
       },
@@ -601,8 +780,8 @@
       "title": "Document operations /s (per process)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 4
       },
       "datasource": {
@@ -642,8 +821,8 @@
       "title": "Document operations /s (per process)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 4
       },
       "datasource": {
@@ -678,13 +857,54 @@
       }
     },
     {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Document operations /s (per process)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 4
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_document_operation_count_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 8,
       "type": "timeseries",
       "title": "Average operation latency by type  prom \u25b6",
       "description": "average latency per op: rate of the cumulative latency counter over rate of the operation count (kindCounter since the kind fix)",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 12
       },
@@ -726,8 +946,8 @@
       "description": "average latency per op: rate of the cumulative latency counter over rate of the operation count (kindCounter since the kind fix)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 12
       },
       "datasource": {
@@ -768,8 +988,8 @@
       "description": "average latency per op: rate of the cumulative latency counter over rate of the operation count (kindCounter since the kind fix)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 12
       },
       "datasource": {
@@ -804,13 +1024,55 @@
       }
     },
     {
+      "id": 8,
+      "type": "timeseries",
+      "title": "Average operation latency by type  gt \u25b6",
+      "description": "average latency per op: rate of the cumulative latency counter over rate of the operation count (kindCounter since the kind fix)",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 9,
       "type": "timeseries",
       "title": "Connections by type  prom \u25b6",
       "description": "up-down counter, point-in-time values",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 12
       },
@@ -852,8 +1114,8 @@
       "description": "up-down counter, point-in-time values",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 12
       },
       "datasource": {
@@ -894,8 +1156,8 @@
       "description": "up-down counter, point-in-time values",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 12
       },
       "datasource": {
@@ -930,13 +1192,55 @@
       }
     },
     {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Connections by type  gt \u25b6",
+      "description": "up-down counter, point-in-time values",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 10,
       "type": "timeseries",
       "title": "Member & process health  prom \u25b6",
       "description": "replication member health per member (1 = healthy) plus process reachability (mongodb.health) averaged per topology",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 12
       },
@@ -989,8 +1293,8 @@
       "description": "replication member health per member (1 = healthy) plus process reachability (mongodb.health) averaged per topology",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 12
       },
       "datasource": {
@@ -1042,8 +1346,8 @@
       "description": "replication member health per member (1 = healthy) plus process reachability (mongodb.health) averaged per topology",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 12
       },
       "datasource": {
@@ -1089,13 +1393,66 @@
       }
     },
     {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Member & process health  gt \u25b6",
+      "description": "replication member health per member (1 = healthy) plus process reachability (mongodb.health) averaged per topology",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 12
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "{{topology}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "ok {{topology}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 11,
       "type": "timeseries",
       "title": "Replication lag (deduped by replica set)  prom \u25b6",
       "description": "gauge, seconds a member trails its primary - standalone has none",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 20
       },
@@ -1137,8 +1494,8 @@
       "description": "gauge, seconds a member trails its primary - standalone has none",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 20
       },
       "datasource": {
@@ -1179,8 +1536,8 @@
       "description": "gauge, seconds a member trails its primary - standalone has none",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 20
       },
       "datasource": {
@@ -1215,13 +1572,55 @@
       }
     },
     {
+      "id": 11,
+      "type": "timeseries",
+      "title": "Replication lag (deduped by replica set)  gt \u25b6",
+      "description": "gauge, seconds a member trails its primary - standalone has none",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 20
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_lag_time_seconds)",
+          "legendFormat": "{{mongodb_replica_set}} {{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 12,
       "type": "timeseries",
       "title": "Oplog window (per member)  prom \u25b6",
       "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 20
       },
@@ -1263,8 +1662,8 @@
       "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 20
       },
       "datasource": {
@@ -1305,8 +1704,8 @@
       "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 20
       },
       "datasource": {
@@ -1341,12 +1740,54 @@
       }
     },
     {
+      "id": 12,
+      "type": "timeseries",
+      "title": "Oplog window (per member)  gt \u25b6",
+      "description": "each mongod reports its own oplog; averaged across the set's members. window in seconds, used/size in bytes",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 20
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "legendFormat": "window {{topology}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 50,
       "type": "timeseries",
       "title": "Oplog used & size (per member)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 20
       },
@@ -1396,8 +1837,8 @@
       "title": "Oplog used & size (per member)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 20
       },
       "datasource": {
@@ -1446,8 +1887,8 @@
       "title": "Oplog used & size (per member)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 20
       },
       "datasource": {
@@ -1491,13 +1932,63 @@
       }
     },
     {
+      "id": 50,
+      "type": "timeseries",
+      "title": "Oplog used & size (per member)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 20
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_used_size_bytes[15m]))",
+          "legendFormat": "used {{topology}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_size_bytes[15m]))",
+          "legendFormat": "size {{topology}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 13,
       "type": "timeseries",
       "title": "Network I/O (per process)  prom \u25b6",
       "description": "counters rated to bytes/s (network bytes are kindCounter since the kind fix)",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 28
       },
@@ -1548,8 +2039,8 @@
       "description": "counters rated to bytes/s (network bytes are kindCounter since the kind fix)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 28
       },
       "datasource": {
@@ -1599,8 +2090,8 @@
       "description": "counters rated to bytes/s (network bytes are kindCounter since the kind fix)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 28
       },
       "datasource": {
@@ -1644,13 +2135,64 @@
       }
     },
     {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Network I/O (per process)  gt \u25b6",
+      "description": "counters rated to bytes/s (network bytes are kindCounter since the kind fix)",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_receive_bytes_total[$__rate_interval]))",
+          "legendFormat": "rx {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_io_transmit_bytes_total[$__rate_interval]))",
+          "legendFormat": "tx {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 14,
       "type": "timeseries",
       "title": "WiredTiger cache (per process)  prom \u25b6",
       "description": "up-down counters, point-in-time bytes. On an idle deployment used/dirty creep up slowly (MB/h) - that is the agent's own polling loading catalog pages plus mongod session housekeeping; checkpoints reset dirty periodically. Only a concern when used approaches total or dirty grows unbounded between checkpoints.",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 28
       },
@@ -1710,8 +2252,8 @@
       "description": "up-down counters, point-in-time bytes. On an idle deployment used/dirty creep up slowly (MB/h) - that is the agent's own polling loading catalog pages plus mongod session housekeeping; checkpoints reset dirty periodically. Only a concern when used approaches total or dirty grows unbounded between checkpoints.",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 28
       },
       "datasource": {
@@ -1770,8 +2312,8 @@
       "description": "up-down counters, point-in-time bytes. On an idle deployment used/dirty creep up slowly (MB/h) - that is the agent's own polling loading catalog pages plus mongod session housekeeping; checkpoints reset dirty periodically. Only a concern when used approaches total or dirty grows unbounded between checkpoints.",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 28
       },
       "datasource": {
@@ -1824,13 +2366,73 @@
       }
     },
     {
+      "id": 14,
+      "type": "timeseries",
+      "title": "WiredTiger cache (per process)  gt \u25b6",
+      "description": "up-down counters, point-in-time bytes. On an idle deployment used/dirty creep up slowly (MB/h) - that is the agent's own polling loading catalog pages plus mongod session housekeeping; checkpoints reset dirty periodically. Only a concern when used approaches total or dirty grows unbounded between checkpoints.",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_used)",
+          "legendFormat": "used {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_dirty)",
+          "legendFormat": "dirty {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_wtcache_bytes_total)",
+          "legendFormat": "total {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 15,
       "type": "timeseries",
       "title": "Shard chunk count  prom \u25b6",
       "description": "up-down counters by shard, from the config server",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 28
       },
@@ -1872,8 +2474,8 @@
       "description": "up-down counters by shard, from the config server",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 28
       },
       "datasource": {
@@ -1914,8 +2516,8 @@
       "description": "up-down counters by shard, from the config server",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 28
       },
       "datasource": {
@@ -1950,12 +2552,54 @@
       }
     },
     {
+      "id": 15,
+      "type": "timeseries",
+      "title": "Shard chunk count  gt \u25b6",
+      "description": "up-down counters by shard, from the config server",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 28
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_chunk_count[15m]))",
+          "legendFormat": "chunks {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 55,
       "type": "timeseries",
       "title": "Shard data size (per shard)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 36
       },
@@ -1996,8 +2640,8 @@
       "title": "Shard data size (per shard)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 36
       },
       "datasource": {
@@ -2037,8 +2681,8 @@
       "title": "Shard data size (per shard)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 36
       },
       "datasource": {
@@ -2073,13 +2717,54 @@
       }
     },
     {
+      "id": 55,
+      "type": "timeseries",
+      "title": "Shard data size (per shard)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 36
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_size_owned_bytes[15m]))",
+          "legendFormat": "owned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 16,
       "type": "timeseries",
       "title": "Memory usage by type (per process)  prom \u25b6",
       "description": "virtual is large by design (WiredTiger cache reservation + mmap'd address space); resident is the interesting one",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 36
       },
@@ -2121,8 +2806,8 @@
       "description": "virtual is large by design (WiredTiger cache reservation + mmap'd address space); resident is the interesting one",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 36
       },
       "datasource": {
@@ -2163,8 +2848,8 @@
       "description": "virtual is large by design (WiredTiger cache reservation + mmap'd address space); resident is the interesting one",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 36
       },
       "datasource": {
@@ -2179,6 +2864,48 @@
           "datasource": {
             "type": "prometheus",
             "uid": "victoriametrics"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 16,
+      "type": "timeseries",
+      "title": "Memory usage by type (per process)  gt \u25b6",
+      "description": "virtual is large by design (WiredTiger cache reservation + mmap'd address space); resident is the interesting one",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 36
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port, type) (mongodb_memory_usage_bytes)",
+          "legendFormat": "{{type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
           }
         }
       ],
@@ -2216,7 +2943,7 @@
       "description": "counters rated to ops/s - asserts split by regular/warning/msg",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 45
       },
@@ -2267,8 +2994,8 @@
       "description": "counters rated to ops/s - asserts split by regular/warning/msg",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 45
       },
       "datasource": {
@@ -2318,8 +3045,8 @@
       "description": "counters rated to ops/s - asserts split by regular/warning/msg",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 45
       },
       "datasource": {
@@ -2363,13 +3090,64 @@
       }
     },
     {
+      "id": 18,
+      "type": "timeseries",
+      "title": "Page faults & asserts  gt \u25b6",
+      "description": "counters rated to ops/s - asserts split by regular/warning/msg",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 45
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_page_faults_total[$__rate_interval]))",
+          "legendFormat": "page faults {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (type) (rate(mongodb_assert_count_total[$__rate_interval]))",
+          "legendFormat": "asserts {{type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 19,
       "type": "timeseries",
       "title": "Global lock time  prom \u25b6",
       "description": "global lock time counter rated (ms/s); queue depth by access type",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 45
       },
@@ -2411,8 +3189,8 @@
       "description": "global lock time counter rated (ms/s); queue depth by access type",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 45
       },
       "datasource": {
@@ -2453,8 +3231,8 @@
       "description": "global lock time counter rated (ms/s); queue depth by access type",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 45
       },
       "datasource": {
@@ -2489,12 +3267,54 @@
       }
     },
     {
+      "id": 19,
+      "type": "timeseries",
+      "title": "Global lock time  gt \u25b6",
+      "description": "global lock time counter rated (ms/s); queue depth by access type",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 45
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_global_lock_time_milliseconds_total[$__rate_interval]))",
+          "legendFormat": "lock time {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 57,
       "type": "timeseries",
       "title": "Global lock queue  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 45
       },
@@ -2535,8 +3355,8 @@
       "title": "Global lock queue  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 45
       },
       "datasource": {
@@ -2576,8 +3396,8 @@
       "title": "Global lock queue  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 45
       },
       "datasource": {
@@ -2612,13 +3432,54 @@
       }
     },
     {
+      "id": 57,
+      "type": "timeseries",
+      "title": "Global lock queue  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 45
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (type) (mongodb_global_lock_current_queue_count)",
+          "legendFormat": "{{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 20,
       "type": "timeseries",
       "title": "Lock acquisitions, waits & deadlocks  prom \u25b6",
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 53
       },
@@ -2678,8 +3539,8 @@
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 53
       },
       "datasource": {
@@ -2738,8 +3599,8 @@
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 53
       },
       "datasource": {
@@ -2792,13 +3653,73 @@
       }
     },
     {
+      "id": 20,
+      "type": "timeseries",
+      "title": "Lock acquisitions, waits & deadlocks  gt \u25b6",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 53
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (lock_type) (rate(mongodb_lock_acquire_count_total[$__rate_interval]))",
+          "legendFormat": "acquire {{lock_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (lock_type) (rate(mongodb_lock_acquire_wait_count_total[$__rate_interval]))",
+          "legendFormat": "wait {{lock_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (lock_type) (rate(mongodb_lock_deadlock_count_total[$__rate_interval]))",
+          "legendFormat": "deadlock {{lock_type}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 21,
       "type": "timeseries",
       "title": "Lock acquire time  prom \u25b6",
       "description": "counter of microseconds spent acquiring, rated",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 53
       },
@@ -2840,8 +3761,8 @@
       "description": "counter of microseconds spent acquiring, rated",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 53
       },
       "datasource": {
@@ -2882,8 +3803,8 @@
       "description": "counter of microseconds spent acquiring, rated",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 53
       },
       "datasource": {
@@ -2918,13 +3839,55 @@
       }
     },
     {
+      "id": 21,
+      "type": "timeseries",
+      "title": "Lock acquire time  gt \u25b6",
+      "description": "counter of microseconds spent acquiring, rated",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 53
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (lock_type) (rate(mongodb_lock_acquire_time_microseconds_total[$__rate_interval]))",
+          "legendFormat": "{{lock_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 22,
       "type": "timeseries",
       "title": "Query executor & scan/order  prom \u25b6",
       "description": "counters rated - scanned documents by what was scanned (index/collection)",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 53
       },
@@ -2975,8 +3938,8 @@
       "description": "counters rated - scanned documents by what was scanned (index/collection)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 53
       },
       "datasource": {
@@ -3026,8 +3989,8 @@
       "description": "counters rated - scanned documents by what was scanned (index/collection)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 53
       },
       "datasource": {
@@ -3071,13 +4034,64 @@
       }
     },
     {
+      "id": 22,
+      "type": "timeseries",
+      "title": "Query executor & scan/order  gt \u25b6",
+      "description": "counters rated - scanned documents by what was scanned (index/collection)",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 53
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (type) (rate(mongodb_query_executor_scanned_count_total[$__rate_interval]))",
+          "legendFormat": "scanned {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_operation_scan_and_order_count_total[$__rate_interval]))",
+          "legendFormat": "scan+order {{mongodb_process_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 23,
       "type": "timeseries",
       "title": "Killed, TTL deleted & documents returned  prom \u25b6",
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 61
       },
@@ -3137,8 +4151,8 @@
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 61
       },
       "datasource": {
@@ -3197,8 +4211,8 @@
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 61
       },
       "datasource": {
@@ -3251,13 +4265,73 @@
       }
     },
     {
+      "id": 23,
+      "type": "timeseries",
+      "title": "Killed, TTL deleted & documents returned  gt \u25b6",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 61
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_operation_killed_count_total[$__rate_interval]))",
+          "legendFormat": "killed {{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_ttl_deleted_count_total[$__rate_interval]))",
+          "legendFormat": "ttl {{mongodb_process_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_document_returned_count_total[$__rate_interval]))",
+          "legendFormat": "returned {{mongodb_process_type}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 24,
       "type": "timeseries",
       "title": "Latency observations & connection churn  prom \u25b6",
       "description": "counters rated - latency sample count and new connections",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 61
       },
@@ -3308,8 +4382,8 @@
       "description": "counters rated - latency sample count and new connections",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 61
       },
       "datasource": {
@@ -3359,8 +4433,8 @@
       "description": "counters rated - latency sample count and new connections",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 61
       },
       "datasource": {
@@ -3404,13 +4478,64 @@
       }
     },
     {
+      "id": 24,
+      "type": "timeseries",
+      "title": "Latency observations & connection churn  gt \u25b6",
+      "description": "counters rated - latency sample count and new connections",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 61
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (operation) (rate(mongodb_operation_latency_count_total[$__rate_interval]))",
+          "legendFormat": "latency samples {{operation}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_connection_created_count_total[$__rate_interval]))",
+          "legendFormat": "created {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 25,
       "type": "timeseries",
       "title": "Active reads / writes  prom \u25b6",
       "description": "up-down counters, point-in-time",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 61
       },
@@ -3461,8 +4586,8 @@
       "description": "up-down counters, point-in-time",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 61
       },
       "datasource": {
@@ -3512,8 +4637,8 @@
       "description": "up-down counters, point-in-time",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 61
       },
       "datasource": {
@@ -3557,13 +4682,64 @@
       }
     },
     {
+      "id": 25,
+      "type": "timeseries",
+      "title": "Active reads / writes  gt \u25b6",
+      "description": "up-down counters, point-in-time",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 61
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_active_reads)",
+          "legendFormat": "reads {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_active_writes)",
+          "legendFormat": "writes {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 26,
       "type": "timeseries",
       "title": "Tickets  prom \u25b6",
       "description": "available tickets per type and concurrent transaction tickets in use",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 69
       },
@@ -3614,8 +4790,8 @@
       "description": "available tickets per type and concurrent transaction tickets in use",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 69
       },
       "datasource": {
@@ -3665,8 +4841,8 @@
       "description": "available tickets per type and concurrent transaction tickets in use",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 69
       },
       "datasource": {
@@ -3710,13 +4886,64 @@
       }
     },
     {
+      "id": 26,
+      "type": "timeseries",
+      "title": "Tickets  gt \u25b6",
+      "description": "available tickets per type and concurrent transaction tickets in use",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 69
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (type) (mongodb_ticket_available)",
+          "legendFormat": "available {{type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (mongodb_wt_concurrent_transaction_ticket_type) (mongodb_wt_concurrent_transaction_ticket_in_use)",
+          "legendFormat": "in use {{mongodb_wt_concurrent_transaction_ticket_type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 27,
       "type": "timeseries",
       "title": "Sessions & cursors (per process)  prom \u25b6",
       "description": "up-down counters, cursor timeout is a counter rated",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 69
       },
@@ -3776,8 +5003,8 @@
       "description": "up-down counters, cursor timeout is a counter rated",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 69
       },
       "datasource": {
@@ -3836,8 +5063,8 @@
       "description": "up-down counters, cursor timeout is a counter rated",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 69
       },
       "datasource": {
@@ -3890,12 +5117,72 @@
       }
     },
     {
+      "id": 27,
+      "type": "timeseries",
+      "title": "Sessions & cursors (per process)  gt \u25b6",
+      "description": "up-down counters, cursor timeout is a counter rated",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 69
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_session_count)",
+          "legendFormat": "sessions {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_cursor_count)",
+          "legendFormat": "cursors {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]))",
+          "legendFormat": "timed out {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 51,
       "type": "timeseries",
       "title": "Cursor timeouts (per process)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 69
       },
@@ -3936,8 +5223,8 @@
       "title": "Cursor timeouts (per process)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 69
       },
       "datasource": {
@@ -3977,8 +5264,8 @@
       "title": "Cursor timeouts (per process)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 69
       },
       "datasource": {
@@ -4013,13 +5300,54 @@
       }
     },
     {
+      "id": 51,
+      "type": "timeseries",
+      "title": "Cursor timeouts (per process)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 69
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_cursor_timeout_count_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 28,
       "type": "timeseries",
       "title": "Network requests & cache operations  prom \u25b6",
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 77
       },
@@ -4070,8 +5398,8 @@
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 77
       },
       "datasource": {
@@ -4121,8 +5449,8 @@
       "description": "counters rated to ops/s",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 77
       },
       "datasource": {
@@ -4166,13 +5494,64 @@
       }
     },
     {
+      "id": 28,
+      "type": "timeseries",
+      "title": "Network requests & cache operations  gt \u25b6",
+      "description": "counters rated to ops/s",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 77
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_network_request_count_total[$__rate_interval]))",
+          "legendFormat": "requests {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (type) (rate(mongodb_cache_operations_total[$__rate_interval]))",
+          "legendFormat": "cache ops {{type}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 29,
       "type": "timeseries",
       "title": "mongod uptime (per process)  prom \u25b6",
       "description": "uptime seconds per process - restarts show as drops to zero",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 77
       },
@@ -4214,8 +5593,8 @@
       "description": "uptime seconds per process - restarts show as drops to zero",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 77
       },
       "datasource": {
@@ -4256,8 +5635,8 @@
       "description": "uptime seconds per process - restarts show as drops to zero",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 77
       },
       "datasource": {
@@ -4272,6 +5651,48 @@
           "datasource": {
             "type": "prometheus",
             "uid": "victoriametrics"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 29,
+      "type": "timeseries",
+      "title": "mongod uptime (per process)  gt \u25b6",
+      "description": "uptime seconds per process - restarts show as drops to zero",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 77
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (mongodb_uptime_milliseconds_total) / 1000",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
           }
         }
       ],
@@ -4309,7 +5730,7 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 86
       },
@@ -4360,8 +5781,8 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 86
       },
       "datasource": {
@@ -4411,8 +5832,8 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 86
       },
       "datasource": {
@@ -4456,13 +5877,64 @@
       }
     },
     {
+      "id": 31,
+      "type": "timeseries",
+      "title": "Data & storage size (per process)  gt \u25b6",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 86
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_data_size_bytes[15m]))",
+          "legendFormat": "data {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_storage_size_bytes[15m]))",
+          "legendFormat": "storage {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 32,
       "type": "timeseries",
       "title": "Index count (per process)  prom \u25b6",
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 86
       },
@@ -4504,8 +5976,8 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 86
       },
       "datasource": {
@@ -4546,8 +6018,8 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 86
       },
       "datasource": {
@@ -4582,12 +6054,54 @@
       }
     },
     {
+      "id": 32,
+      "type": "timeseries",
+      "title": "Index count (per process)  gt \u25b6",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 86
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_count[15m]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 58,
       "type": "timeseries",
       "title": "Index size (per process)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 86
       },
@@ -4628,8 +6142,8 @@
       "title": "Index size (per process)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 86
       },
       "datasource": {
@@ -4669,8 +6183,8 @@
       "title": "Index size (per process)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 86
       },
       "datasource": {
@@ -4705,13 +6219,54 @@
       }
     },
     {
+      "id": 58,
+      "type": "timeseries",
+      "title": "Index size (per process)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 86
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_index_size_bytes[15m]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 33,
       "type": "timeseries",
       "title": "Collections, views, databases, objects (per process)  prom \u25b6",
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 94
       },
@@ -4780,8 +6335,8 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 94
       },
       "datasource": {
@@ -4849,8 +6404,8 @@
       "description": "all databases of the process summed",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 94
       },
       "datasource": {
@@ -4912,13 +6467,82 @@
       }
     },
     {
+      "id": 33,
+      "type": "timeseries",
+      "title": "Collections, views, databases, objects (per process)  gt \u25b6",
+      "description": "all databases of the process summed",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 94
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_collection_count[15m]))",
+          "legendFormat": "collections {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_view_count[15m]))",
+          "legendFormat": "views {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_database_count[15m]))",
+          "legendFormat": "dbs {{server_address}}:{{server_port}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (last_over_time(mongodb_object_count[15m]))",
+          "legendFormat": "objects {{server_address}}:{{server_port}}",
+          "refId": "D",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 34,
       "type": "timeseries",
       "title": "WiredTiger journal ops & fsyncs (per process)  prom \u25b6",
       "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 94
       },
@@ -4969,8 +6593,8 @@
       "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 94
       },
       "datasource": {
@@ -5020,8 +6644,8 @@
       "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 94
       },
       "datasource": {
@@ -5065,12 +6689,63 @@
       }
     },
     {
+      "id": 34,
+      "type": "timeseries",
+      "title": "WiredTiger journal ops & fsyncs (per process)  gt \u25b6",
+      "description": "counters rated - log operations by type, fsyncs, journal bytes written; sync shows seconds synced per second (fraction)",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 94
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (mongodb_wt_log_operation_type, server_address, server_port) (rate(mongodb_wt_log_operation_count_total[$__rate_interval]))",
+          "legendFormat": "{{mongodb_wt_log_operation_type}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_fsync_count_total[$__rate_interval]))",
+          "legendFormat": "fsyncs {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 52,
       "type": "timeseries",
       "title": "WiredTiger journal bytes written (per process)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 94
       },
@@ -5111,8 +6786,8 @@
       "title": "WiredTiger journal bytes written (per process)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 94
       },
       "datasource": {
@@ -5152,8 +6827,8 @@
       "title": "WiredTiger journal bytes written (per process)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 94
       },
       "datasource": {
@@ -5188,12 +6863,53 @@
       }
     },
     {
+      "id": 52,
+      "type": "timeseries",
+      "title": "WiredTiger journal bytes written (per process)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 94
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_write_bytes_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 53,
       "type": "timeseries",
       "title": "WiredTiger journal sync time (per process)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 102
       },
@@ -5235,8 +6951,8 @@
       "title": "WiredTiger journal sync time (per process)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 102
       },
       "datasource": {
@@ -5277,8 +6993,8 @@
       "title": "WiredTiger journal sync time (per process)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 102
       },
       "datasource": {
@@ -5314,13 +7030,55 @@
       "description": "seconds spent syncing per second - a utilization fraction"
     },
     {
+      "id": 53,
+      "type": "timeseries",
+      "title": "WiredTiger journal sync time (per process)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 102
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wt_log_sync_time_seconds_total[$__rate_interval]))",
+          "legendFormat": "{{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "seconds spent syncing per second - a utilization fraction"
+    },
+    {
       "id": 35,
       "type": "timeseries",
       "title": "WiredTiger cache I/O (per process)  prom \u25b6",
       "description": "read/written bytes rated, total cache size direct",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 102
       },
@@ -5371,8 +7129,8 @@
       "description": "read/written bytes rated, total cache size direct",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 102
       },
       "datasource": {
@@ -5422,8 +7180,8 @@
       "description": "read/written bytes rated, total cache size direct",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 102
       },
       "datasource": {
@@ -5467,13 +7225,64 @@
       }
     },
     {
+      "id": 35,
+      "type": "timeseries",
+      "title": "WiredTiger cache I/O (per process)  gt \u25b6",
+      "description": "read/written bytes rated, total cache size direct",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 102
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_read_total[$__rate_interval]))",
+          "legendFormat": "read {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "sum by (server_address, server_port) (rate(mongodb_wtcache_bytes_written_total[$__rate_interval]))",
+          "legendFormat": "written {{server_address}}:{{server_port}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 36,
       "type": "timeseries",
       "title": "Agent uptime (per agent)  prom \u25b6",
       "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 102
       },
@@ -5515,8 +7324,8 @@
       "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 102
       },
       "datasource": {
@@ -5557,8 +7366,8 @@
       "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 102
       },
       "datasource": {
@@ -5593,12 +7402,54 @@
       }
     },
     {
+      "id": 36,
+      "type": "timeseries",
+      "title": "Agent uptime (per agent)  gt \u25b6",
+      "description": "the agent's own telemetry (uptime, goroutines, memory), labeled by host name - one line per monitoring agent",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 102
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (service_version) (mongodb_mms_agent_uptime_seconds)",
+          "legendFormat": "uptime {{service_version}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 62,
       "type": "timeseries",
       "title": "Agent goroutines (per agent)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 110
       },
@@ -5639,8 +7490,8 @@
       "title": "Agent goroutines (per agent)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 110
       },
       "datasource": {
@@ -5680,8 +7531,8 @@
       "title": "Agent goroutines (per agent)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 110
       },
       "datasource": {
@@ -5716,12 +7567,53 @@
       }
     },
     {
+      "id": 62,
+      "type": "timeseries",
+      "title": "Agent goroutines (per agent)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 110
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (service_version) (mongodb_mms_agent_goroutine_count)",
+          "legendFormat": "goroutines {{service_version}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 63,
       "type": "timeseries",
       "title": "Agent memory (per agent)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 110
       },
@@ -5762,8 +7654,8 @@
       "title": "Agent memory (per agent)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 110
       },
       "datasource": {
@@ -5803,8 +7695,8 @@
       "title": "Agent memory (per agent)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 110
       },
       "datasource": {
@@ -5839,13 +7731,54 @@
       }
     },
     {
+      "id": 63,
+      "type": "timeseries",
+      "title": "Agent memory (per agent)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 110
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (service_version) (mongodb_mms_agent_memory_usage_bytes)",
+          "legendFormat": "memory {{service_version}}",
+          "refId": "C",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 37,
       "type": "timeseries",
       "title": "Shard documents owned / orphaned  prom \u25b6",
       "description": "up-down counters by shard",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 110
       },
@@ -5896,8 +7829,8 @@
       "description": "up-down counters by shard",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 110
       },
       "datasource": {
@@ -5947,8 +7880,8 @@
       "description": "up-down counters by shard",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 110
       },
       "datasource": {
@@ -5992,13 +7925,64 @@
       }
     },
     {
+      "id": 37,
+      "type": "timeseries",
+      "title": "Shard documents owned / orphaned  gt \u25b6",
+      "description": "up-down counters by shard",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 110
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_documents_owned[15m]))",
+          "legendFormat": "owned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        },
+        {
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_documents_orphaned[15m]))",
+          "legendFormat": "orphaned {{mongodb_shard}}",
+          "refId": "B",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 38,
       "type": "timeseries",
       "title": "Shard size orphaned (per shard)  prom \u25b6",
       "description": "orphaned bytes by shard; flow control time rated per process",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 118
       },
@@ -6040,8 +8024,8 @@
       "description": "orphaned bytes by shard; flow control time rated per process",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 118
       },
       "datasource": {
@@ -6082,8 +8066,8 @@
       "description": "orphaned bytes by shard; flow control time rated per process",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 118
       },
       "datasource": {
@@ -6118,12 +8102,54 @@
       }
     },
     {
+      "id": 38,
+      "type": "timeseries",
+      "title": "Shard size orphaned (per shard)  gt \u25b6",
+      "description": "orphaned bytes by shard; flow control time rated per process",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 118
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_shard) (last_over_time(mongodb_shard_size_orphaned_bytes[15m]))",
+          "legendFormat": "orphaned {{mongodb_shard}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 54,
       "type": "timeseries",
       "title": "Flow control time (per process)  prom \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 118
       },
@@ -6165,8 +8191,8 @@
       "title": "Flow control time (per process)  graf \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 118
       },
       "datasource": {
@@ -6207,8 +8233,8 @@
       "title": "Flow control time (per process)  vm \u25b6",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 118
       },
       "datasource": {
@@ -6244,13 +8270,55 @@
       "description": "RATE of the cumulative \u00b5s counter"
     },
     {
+      "id": 54,
+      "type": "timeseries",
+      "title": "Flow control time (per process)  gt \u25b6",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 118
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (mongodb_process_type) (rate(mongodb_flow_control_time_microseconds_total[$__rate_interval]))",
+          "legendFormat": "{{mongodb_process_type}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "\u00b5s"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      },
+      "description": "RATE of the cumulative \u00b5s counter"
+    },
+    {
       "id": 39,
       "type": "timeseries",
       "title": "Replication member state (deduped by replica set)  prom \u25b6",
       "description": "gauge encoding the member state (PRIMARY/SECONDARY/...)",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 118
       },
@@ -6292,8 +8360,8 @@
       "description": "gauge encoding the member state (PRIMARY/SECONDARY/...)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 118
       },
       "datasource": {
@@ -6334,8 +8402,8 @@
       "description": "gauge encoding the member state (PRIMARY/SECONDARY/...)",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 118
       },
       "datasource": {
@@ -6370,13 +8438,55 @@
       }
     },
     {
+      "id": 39,
+      "type": "timeseries",
+      "title": "Replication member state (deduped by replica set)  gt \u25b6",
+      "description": "gauge encoding the member state (PRIMARY/SECONDARY/...)",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 118
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "avg by (mongodb_member) (mongodb_replication_member_state_ratio)",
+          "legendFormat": "{{mongodb_member}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
       "id": 40,
       "type": "timeseries",
       "title": "Operation time by type (top, per process)  prom \u25b6",
       "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
       "gridPos": {
         "h": 8,
-        "w": 8,
+        "w": 6,
         "x": 0,
         "y": 126
       },
@@ -6418,8 +8528,8 @@
       "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 8,
+        "w": 6,
+        "x": 6,
         "y": 126
       },
       "datasource": {
@@ -6460,8 +8570,8 @@
       "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
+        "w": 6,
+        "x": 12,
         "y": 126
       },
       "datasource": {
@@ -6476,6 +8586,48 @@
           "datasource": {
             "type": "prometheus",
             "uid": "victoriametrics"
+          }
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "calcs": [
+            "lastNotNull"
+          ]
+        }
+      }
+    },
+    {
+      "id": 40,
+      "type": "timeseries",
+      "title": "Operation time by type (top, per process)  gt \u25b6",
+      "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 18,
+        "y": 126
+      },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "greptimedb-prom"
+      },
+      "targets": [
+        {
+          "expr": "sum by (operation, server_address, server_port) (rate(mongodb_operation_time_milliseconds_total[$__rate_interval]))",
+          "legendFormat": "{{operation}} {{server_address}}:{{server_port}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "greptimedb-prom"
           }
         }
       ],

@@ -24,13 +24,18 @@ datasources:
     uid: victoriametrics
     type: prometheus
     access: proxy
-    url: https://victoriametrics:8428
-    jsonData:
-      tlsAuthWithCACert: true
-    secureJsonData:
-      tlsCACert: $__file{/certs/ca.crt}
+    url: http://victoriametrics:8428
   - name: greptimedb
-    uid: greptimedb
+    uid: greptimedb-prom
+    type: prometheus
+    access: proxy
+    url: http://greptimedb:4000/v1/prometheus
+    jsonData:
+      httpHeaderName1: x-greptime-db-name
+    secureJsonData:
+      httpHeaderValue1: public
+  - name: greptimedb-sql
+    uid: greptimedb-sql
     type: mysql
     access: proxy
     url: greptimedb:4002
