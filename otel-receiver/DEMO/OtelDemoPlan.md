@@ -11,18 +11,21 @@
 - `bash quick-start.sh` — validates config, generates certs, writes TLS config, provisions Grafana datasources.
 - `bash agent-config.sh` — prints ready `otelConfig` JSON for one/two backends (second slot needs `-otelMultiBackend` agent flag).
 - Grafana at <http://localhost:3000> (admin/admin) 
-  — dashboards **[MongoDB Agent OTLP Metrics](`http://localhost:3000/d/mongodb-agent-otel-diff)** and **[MongoDB Agent OTLP - Backend Diff](`http://localhost:3000/d/mongodb-agent-otlp-backend-diff')**.
+  — dashboards [MongoDB Agent OTLP Metrics](http://localhost:3000/d/mongodb-agent-otel) and [MongoDB Agent OTLP - Backend Diff](http://localhost:3000/d/mongodb-agent-otel-diff).
 - `catch-request.py` — one-shot raw-request catcher.
 - `bash crud-workload.sh` (inserts/updates/deletes across standalone, RS, sharded) to demo load.
 
-### Backend endpoints (agent side):
+### Backends and endpoints (agent side):
 
-| Backend | Endpoint for the agent |
-| :---- | :---- |
-| `prometheus` | `https://localhost:9090/api/v1/otlp/v1/metrics` (mTLS) |
-| `grafana-otel` | `https://localhost:4320/v1/metrics` (mTLS) |
-| `victoriametrics` | `http://localhost:8428/opentelemetry/v1/metrics` (plain http) |
-| `otelcol` (optional fan-out) | `https://localhost:4322/v1/metrics` — point the agent at this one backend to feed all three; never combine with the others in the agent's slots (double ingestion) |
+| Backend | What it is | Endpoint for the agent |
+| :---- | :---- | :---- |
+| `prometheus` | Prometheus with its native OTLP receiver | `localhost:9090/api/v1/otlp/v1/metrics` |
+| `grafana-otel` | Grafana's own OTLP backend (the `otel-lgtm` image: collector + prometheus + grafana) | `localhost:4320/v1/metrics` |
+| `victoriametrics` | Prometheus-compatible store with native OTLP ingest | `localhost:8428/opentelemetry/v1/metrics` |
+| `greptimedb` | The non-PromQL target: OTLP into a columnar SQL store, queried in Grafana over mysql | `http://localhost:4000/v1/otlp/v1/metrics` (its OTLP listener has no TLS) |
+| `otelcol` (optional fan-out) | OpenTelemetry Collector forwarding to all four above in one hop | `localhost:4322/v1/metrics` — point the agent at this single backend to feed the others; never combine with them in the agent's slots (double ingestion) |
+
+The endpoint scheme is `http` or `https` per the TLS mode each backend gets from `backends.conf` via `bash quick-start.sh` (prep above). `bash agent-config.sh` always prints the exact ready-to-paste JSON for the active mode.
 
 ### Agent log locations (this env):
 
@@ -40,14 +43,14 @@
 
 ### Confirm it's flowing — DEMO
 
-- Backend Diff dashboard: <http://localhost:3000/goto/s9bcv2?orgId=default>
+- Backend Diff dashboard: <http://localhost:3000/d/mongodb-agent-otel-diff/mongodb-agent-otlp-backend-diff?refresh=30s>
 - Monitoring module log:
 
   ```shell
   tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffered "Otel:"
   ```
 
-  → `[otel.info] Otel: emitter initialized: endpoint=http://localhost:8428/… interval=30s compression=gzip`
+  → `[otel.info] Otel: emitter initialized: endpoint=https://localhost:8428/… interval=30s compression=gzip`
 - Data Already flowing to OM — same collection cycle as before, just an extra sink.
 
 ### On the wire — raw view — DEMO
