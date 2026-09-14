@@ -13,12 +13,12 @@ cd "$(dirname "$0")"
 source backends.conf
 
 backend_key() { printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_'; }
-backend_port() { case "$1" in prometheus) echo 9090 ;; grafana-otel) echo 4320 ;; victoriametrics) echo 8428 ;; collector) echo 4322 ;; esac; }
-backend_path() { case "$1" in prometheus) echo /api/v1/otlp/v1/metrics ;; victoriametrics) echo /opentelemetry/v1/metrics ;; *) echo /v1/metrics ;; esac; }
+backend_port() { case "$1" in prometheus) echo 9090 ;; grafana-otel) echo 4320 ;; victoriametrics) echo 8428 ;; greptimedb) echo 4000 ;; collector) echo 4322 ;; esac; }
+backend_path() { case "$1" in prometheus) echo /api/v1/otlp/v1/metrics ;; victoriametrics) echo /opentelemetry/v1/metrics ;; greptimedb) echo /v1/otlp/v1/metrics ;; *) echo /v1/metrics ;; esac; }
 
 [[ -f certs/ca.crt ]] || { echo "No certificates - run quick-start.sh first"; exit 1; }
 
-options=(prometheus grafana-otel victoriametrics collector)
+options=(prometheus grafana-otel victoriametrics greptimedb collector)
 
 # UI prints go to stderr, the picked name is what $(pick ...) captures
 say() { echo "$@" >&2; }
@@ -65,7 +65,7 @@ backend_json() {
   local key; key=$(backend_key "$name")
   local tls="${key}_TLS"; tls="${!tls:-none}"
   local scheme=http; [[ "$tls" != "none" ]] && scheme=https
-  local ca='""' cc='""' ck='""' ckpw='""'
+  local ca='""' cc='""' ck='""' ckpw='""' headers=""
   if [[ "$tls" != "none" ]]; then
     ca="\"$(pwd)/certs/ca.crt\""
     if [[ "$tls" == "mtls" ]]; then
@@ -81,8 +81,11 @@ backend_json() {
       ck="\"$(pwd)/certs/$keyfile.key\""
     fi
   fi
-  printf '    {\n      "endpoint": "%s://localhost:%s%s",\n      "headers": "",\n      "caCertPath": %s,\n      "clientCertPath": %s,\n      "clientKeyPath": %s,\n      "clientKeyPassword": %s,\n      "compression": "gzip"\n    }' \
-    "$scheme" "$(backend_port "$name")" "$(backend_path "$name")" "$ca" "$cc" "$ck" "$ckpw"
+  # greptimedb keeps only the prometheus-default resource attributes unless
+  # asked - the header gives it the promote-all behavior of the other backends
+  [[ "$name" == "greptimedb" ]] && headers="x-greptime-otlp-metric-promote-all-resource-attrs=true"
+  printf '    {\n      "endpoint": "%s://localhost:%s%s",\n      "headers": "%s",\n      "caCertPath": %s,\n      "clientCertPath": %s,\n      "clientKeyPath": %s,\n      "clientKeyPassword": %s,\n      "compression": "gzip"\n    }' \
+    "$scheme" "$(backend_port "$name")" "$(backend_path "$name")" "$headers" "$ca" "$cc" "$ck" "$ckpw"
 }
 
 echo
@@ -106,7 +109,7 @@ if [[ -n "$second" ]]; then
   echo "Two backends need the agent started with the otelMultiBackend flag, one works without it."
 fi
 if [[ "$first" == "collector" || "$second" == "collector" ]]; then
-  echo "NOTE: the collector forwards to prometheus, grafana-otel AND victoriametrics -"
+  echo "NOTE: the collector forwards to every other backend -"
   echo "do not target those directly in the other slot, they would receive every series twice."
 fi
 echo "Restart the monitoring agent after applying the config."

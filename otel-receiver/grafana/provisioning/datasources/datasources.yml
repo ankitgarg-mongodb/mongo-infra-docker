@@ -29,3 +29,12 @@ datasources:
       tlsAuthWithCACert: true
     secureJsonData:
       tlsCACert: $__file{/certs/ca.crt}
+  - name: greptimedb
+    uid: greptimedb
+    type: mysql
+    access: proxy
+    url: greptimedb:4002
+    user: root
+    database: public
+    jsonData:
+      timezone: UTC

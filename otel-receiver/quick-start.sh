@@ -23,7 +23,7 @@ backend_key() { printf '%s' "$1" | tr '[:lower:]-' '[:upper:]_'; }
 
 # --- validate ----------------------------------------------------------------
 
-for name in prometheus grafana-otel victoriametrics otelcol
+for name in prometheus grafana-otel victoriametrics greptimedb otelcol
 do
   key=$(backend_key "$name")
   tls="${key}_TLS"
@@ -35,6 +35,12 @@ do
   # has no -mtls flag), so it is none or tls only
   if [[ "$name" == "victoriametrics" && "${!tls:-none}" == "mtls" ]]; then
     echo "backends.conf: VICTORIAMETRICS_TLS=mtls - VictoriaMetrics supports none and tls only"
+    exit 1
+  fi
+  # greptimedb's OTLP/HTTP listener has no TLS option at all (its tls options
+  # cover the mysql/postgres/grpc query ports only), so it is none only
+  if [[ "$name" == "greptimedb" && "${!tls:-none}" != "none" ]]; then
+    echo "backends.conf: GREPTIMEDB_TLS=${!tls} - greptimedb accepts none only (no TLS on its OTLP port)"
     exit 1
   fi
   certs="${key}_CERTS"
@@ -195,6 +201,19 @@ ca_fp=$(openssl x509 -in certs/ca.crt -noout -fingerprint -sha256 2>/dev/null ||
     echo "    secureJsonData:"
     echo "      tlsCACert: \$__file{/certs/ca.crt}"
   fi
+  # greptimedb is the non-PromQL backend - grafana queries it with SQL over the
+  # mysql protocol (no auth by default, any user connects; session timezone UTC
+  # per the greptimedb docs). Panel queries are raw SQL, the SQL builder does
+  # not work against greptimedb
+  echo "  - name: greptimedb"
+  echo "    uid: greptimedb"
+  echo "    type: mysql"
+  echo "    access: proxy"
+  echo "    url: greptimedb:4002"
+  echo "    user: root"
+  echo "    database: public"
+  echo "    jsonData:"
+  echo "      timezone: UTC"
 } > grafana/provisioning/datasources/datasources.yml
 
 
@@ -233,13 +252,17 @@ cert="certs/$(backend_cert otelcol)"
     echo "      cert_file: /certs/client.crt"
     echo "      key_file: /certs/client.key"
   fi
+  go_scheme=http
+  [[ "${GRAFANA_OTEL_TLS:-none}" != "none" ]] && go_scheme=https
   echo "  otlphttp/grafana-otel:"
-  echo "    endpoint: https://grafana-otel:4318"
-  echo "    tls:"
-  echo "      ca_file: /certs/ca.crt"
-  if [[ "${GRAFANA_OTEL_TLS:-none}" == "mtls" ]]; then
-    echo "      cert_file: /certs/client.crt"
-    echo "      key_file: /certs/client.key"
+  echo "    endpoint: $go_scheme://grafana-otel:4318"
+  if [[ "${GRAFANA_OTEL_TLS:-none}" != "none" ]]; then
+    echo "    tls:"
+    echo "      ca_file: /certs/ca.crt"
+    if [[ "${GRAFANA_OTEL_TLS:-none}" == "mtls" ]]; then
+      echo "      cert_file: /certs/client.crt"
+      echo "      key_file: /certs/client.key"
+    fi
   fi
   echo "  otlphttp/victoriametrics:"
   if [[ "${VICTORIAMETRICS_TLS:-none}" == "none" ]]; then
@@ -249,12 +272,19 @@ cert="certs/$(backend_cert otelcol)"
     echo "    tls:"
     echo "      ca_file: /certs/ca.crt"
   fi
+  # greptimedb's OTLP listener has no TLS, and greptimedb has no mTLS anywhere;
+  # the header promotes ALL resource attributes to table columns like the other
+  # backends do (greptimedb keeps only the prometheus-default set without it)
+  echo "  otlphttp/greptimedb:"
+  echo "    endpoint: http://greptimedb:4000/v1/otlp"
+  echo "    headers:"
+  echo "      x-greptime-otlp-metric-promote-all-resource-attrs: \"true\""
   echo
   echo "service:"
   echo "  pipelines:"
   echo "    metrics:"
   echo "      receivers: [otlp]"
-  echo "      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/victoriametrics]"
+  echo "      exporters: [otlphttp/prometheus, otlphttp/grafana-otel, otlphttp/victoriametrics, otlphttp/greptimedb]"
 } > otelcol/collector.yaml
 
 # regenerate the diff dashboard from the main dashboard so they never drift
@@ -280,7 +310,8 @@ echo "Grafana OTLP:   https://localhost:4320 (TLS ${GRAFANA_OTEL_TLS:-none})"
 vmscheme=http
 [[ "${VICTORIAMETRICS_TLS:-none}" != "none" ]] && vmscheme=https
 echo "VictoriaMetrics: $vmscheme://localhost:8428 (TLS ${VICTORIAMETRICS_TLS:-none}, OTLP at /opentelemetry/v1/metrics + the prometheus querying API)"
-echo "Collector:      https://localhost:4322 (TLS ${COLLECTOR_TLS:-none}, fans out to all three backends)"
+echo "GreptimeDB:     http://localhost:4000 (TLS none - its OTLP port cannot do TLS, OTLP at /v1/otlp/v1/metrics, dashboard at /dashboard)"
+echo "Collector:      https://localhost:4322 (TLS ${COLLECTOR_TLS:-none}, fans out to all four backends)"
 echo
 echo "All backends are running and visible in Grafana."
 echo "To pick what the agent exports to, run: bash agent-config.sh"

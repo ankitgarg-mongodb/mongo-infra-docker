@@ -82,8 +82,38 @@ services:
     volumes:
       - ./certs:/certs:ro
       - vm-data:/victoria-metrics-data
-  # Dedicated collector - the optional 4th backend: receives the agent's OTLP
-  # and fans out to prometheus, grafana-otel and victoriametrics in one hop
+  # GreptimeDB - the non-PromQL backend: native OTLP/HTTP ingest, queried with
+  # SQL over the mysql protocol (grafana datasource) - its OTLP listener has no
+  # TLS option, so this service is plain http
+  greptimedb:
+    container_name: greptimedb
+    # binds default to 127.0.0.1 inside the container, the 0.0.0.0 addresses
+    # make both ports reachable from the other containers and the host
+    command:
+      - standalone
+      - start
+      - --http-addr=0.0.0.0:4000
+      - --mysql-addr=0.0.0.0:4002
+    deploy:
+      resources:
+        limits:
+          cpus: '1.000'
+          memory: 1G
+        reservations:
+          cpus: '0.500'
+          memory: 0.5G
+    hostname: greptimedb.internal
+    image: greptime/greptimedb:v1.2.0
+    restart: unless-stopped
+    ports:
+      - "4000:4000" # OTLP/HTTP for the agent + the built-in dashboard at /dashboard
+      - "4002:4002" # mysql protocol for the grafana datasource + SQL from a client
+    volumes:
+      - greptimedb-data:/greptimedb_data
+
+  # Dedicated collector - the optional 5th backend: receives the agent's OTLP
+  # and fans out to prometheus, grafana-otel, victoriametrics and greptimedb
+  # in one hop
   otelcol:
     container_name: otelcol
     command: ["--config=/etc/otelcol/config.yaml"]
@@ -132,3 +162,4 @@ volumes:
   grafana-otel-data:
   grafana-data:
   vm-data:
+  greptimedb-data:
