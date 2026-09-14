@@ -65,16 +65,24 @@ backend_json() {
   local key; key=$(backend_key "$name")
   local tls="${key}_TLS"; tls="${!tls:-none}"
   local scheme=http; [[ "$tls" != "none" ]] && scheme=https
-  local ca='""' cc='""' ck='""'
+  local ca='""' cc='""' ck='""' ckpw='""'
   if [[ "$tls" != "none" ]]; then
     ca="\"$(pwd)/certs/ca.crt\""
     if [[ "$tls" == "mtls" ]]; then
-      cc="\"$(pwd)/certs/client.crt\""
-      ck="\"$(pwd)/certs/client.key\""
+      # with CLIENT_KEY_PASSWORD set (backends.conf) the agent gets the
+      # dedicated PEM-encrypted keypair instead of the plain one the stack's
+      # internal TLS clients share
+      local keyfile=client
+      if [[ -n "${CLIENT_KEY_PASSWORD:-}" ]]; then
+        keyfile=client-encrypted
+        ckpw="\"$CLIENT_KEY_PASSWORD\""
+      fi
+      cc="\"$(pwd)/certs/$keyfile.crt\""
+      ck="\"$(pwd)/certs/$keyfile.key\""
     fi
   fi
-  printf '    {\n      "endpoint": "%s://localhost:%s%s",\n      "headers": "",\n      "caCertPath": %s,\n      "clientCertPath": %s,\n      "clientKeyPath": %s,\n      "clientKeyPassword": "",\n      "compression": "gzip"\n    }' \
-    "$scheme" "$(backend_port "$name")" "$(backend_path "$name")" "$ca" "$cc" "$ck"
+  printf '    {\n      "endpoint": "%s://localhost:%s%s",\n      "headers": "",\n      "caCertPath": %s,\n      "clientCertPath": %s,\n      "clientKeyPath": %s,\n      "clientKeyPassword": %s,\n      "compression": "gzip"\n    }' \
+    "$scheme" "$(backend_port "$name")" "$(backend_path "$name")" "$ca" "$cc" "$ck" "$ckpw"
 }
 
 echo
@@ -102,5 +110,6 @@ if [[ "$first" == "collector" || "$second" == "collector" ]]; then
   echo "do not target those directly in the other slot, they would receive every series twice."
 fi
 echo "Restart the monitoring agent after applying the config."
-echo "TLS backends need certs/ca.crt (and certs/client.* for mtls) copied to the"
-echo "agent's machine - adjust the paths above if it does not run on this one."
+echo "TLS backends need certs/ca.crt (plus the client cert/key from the config"
+echo "above for mtls) copied to the agent's machine - adjust the paths above if"
+echo "it does not run on this one."

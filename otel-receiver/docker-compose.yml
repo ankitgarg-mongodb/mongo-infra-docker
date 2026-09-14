@@ -58,10 +58,14 @@ services:
   # speaks PromQL so the dashboard's Backend dropdown treats it like prometheus
   victoriametrics:
     container_name: victoriametrics
+    # TLS flags come from .env, written by quick-start.sh from VICTORIAMETRICS_TLS
     command:
       - -opentelemetry.usePrometheusNaming
       - -opentelemetry.promoteAllResourceAttributes
       - -storageDataPath=/victoria-metrics-data
+      - -tls=${VICTORIAMETRICS_TLS_ON:-false}
+      - -tlsCertFile=${VICTORIAMETRICS_TLS_CERT:-}
+      - -tlsKeyFile=${VICTORIAMETRICS_TLS_KEY:-}
     deploy:
       resources:
         limits:
@@ -76,6 +80,7 @@ services:
     ports:
       - "8428:8428" # OTLP/HTTP for the agent + the prometheus querying API
     volumes:
+      - ./certs:/certs:ro
       - vm-data:/victoria-metrics-data
   # Dedicated collector - the optional 4th backend: receives the agent's OTLP
   # and fans out to prometheus, grafana-otel and victoriametrics in one hop

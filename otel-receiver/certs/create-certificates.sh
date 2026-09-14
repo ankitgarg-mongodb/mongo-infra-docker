@@ -3,6 +3,8 @@
 # Generates certificates into this folder based on backends.conf:
 #   ca.crt                     the CA every certificate trusts (agent's caCertPath)
 #   client.crt, client.key     the agent's certificate for mutual TLS
+#   client-encrypted.crt,      the agent's keypair when CLIENT_KEY_PASSWORD
+#   client-encrypted.key       (backends.conf) is set - its key is PEM-encrypted
 #   server.crt, server.key     shared server certificate (CERTS=shared)
 #   <backend>.crt, <backend>.key   dedicated certificate (CERTS=dedicated)
 #
@@ -56,6 +58,21 @@ write_ext() {
   } > "$out"
 }
 
+# generate an RSA key, PEM-encrypted when KEY_PASSWORD is set (used for the
+# agent's client-encrypted key; traditional format with a DEK-Info header so
+# Go-based consumers can decrypt it)
+gen_key() {
+  local out=$1
+  if [[ -n "${KEY_PASSWORD:-}" ]]; then
+    openssl genrsa -out "$out.tmp" 2048 2>/dev/null
+    openssl rsa -traditional -aes256 -passout "pass:${KEY_PASSWORD}" \
+      -in "$out.tmp" -out "$out" 2>/dev/null
+    rm -f "$out.tmp"
+  else
+    openssl genrsa -out "$out" 2048 2>/dev/null
+  fi
+}
+
 # generate a CA-signed keypair unless it already exists: sign_cert <name> <cn> <eku> <extra dns names...>
 sign_cert() {
   local name=$1 cn=$2 eku=$3
@@ -65,8 +82,12 @@ sign_cert() {
     return
   fi
   write_ext "ext/$name.cnf" "$eku" "$cn" "$@"
-  openssl genrsa -out "$name.key" 2048 2>/dev/null
-  openssl req -new -key "$name.key" -out "$name.csr" -subj "/O=${ORG}/CN=${cn}"
+  gen_key "$name.key"
+  # an encrypted key (KEY_PASSWORD set) must be unlocked for the CSR step;
+  # for plain keys -passin is never consulted
+  local passin=()
+  [[ -n "${KEY_PASSWORD:-}" ]] && passin=(-passin "pass:${KEY_PASSWORD}")
+  openssl req -new -key "$name.key" ${passin[@]+"${passin[@]}"} -out "$name.csr" -subj "/O=${ORG}/CN=${cn}"
   openssl x509 -req -days "$DAYS" -in "$name.csr" -CA ca.crt -CAkey ca.key -CAcreateserial \
     -out "$name.crt" -extfile "ext/$name.cnf" -extensions v3_req 2>/dev/null
   rm -f "$name.csr"
@@ -103,11 +124,30 @@ fi
 # the agent's client certificate, shared by every backend
 sign_cert client otel-agent clientAuth
 
+# the agent's keypair for the clientKeyPassword flow: generated only when
+# CLIENT_KEY_PASSWORD (backends.conf) is set, its key PEM-encrypted with that
+# password. Changing or clearing the password regenerates the pair; the plain
+# client.* pair above is untouched and keeps serving the stack-internal
+# clients (collector fan-out, grafana datasources), which cannot decrypt
+# PEM-encrypted keys
+if [[ -n "${CLIENT_KEY_PASSWORD:-}" ]]; then
+  if [[ -f client-encrypted.key ]] && \
+     ! openssl rsa -in client-encrypted.key -passin "pass:${CLIENT_KEY_PASSWORD}" -noout >/dev/null 2>&1
+  then
+    echo "  client-encrypted.key does not decrypt with CLIENT_KEY_PASSWORD - regenerating"
+    rm -f client-encrypted.crt client-encrypted.key
+  fi
+  KEY_PASSWORD=$CLIENT_KEY_PASSWORD
+  sign_cert client-encrypted otel-agent clientAuth
+  KEY_PASSWORD=
+else
+  rm -f client-encrypted.crt client-encrypted.key
+fi
+
 # server certificates: shared covers every backend, dedicated is per backend
-# (victoriametrics runs unauthenticated locally, it never presents a certificate)
 shared_names=(prometheus prometheus.internal grafana-otel grafana-otel.internal victoriametrics victoriametrics.internal otelcol otelcol.internal)
 
-for backend in prometheus grafana-otel otelcol
+for backend in prometheus grafana-otel victoriametrics otelcol
 do
   backend_key=$(backend_key "$backend")
   cert_mode="${backend_key}_CERTS"

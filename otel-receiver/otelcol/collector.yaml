@@ -27,7 +27,9 @@ exporters:
     tls:
       ca_file: /certs/ca.crt
   otlphttp/victoriametrics:
-    endpoint: http://victoriametrics:8428/opentelemetry
+    endpoint: https://victoriametrics:8428/opentelemetry
+    tls:
+      ca_file: /certs/ca.crt
 
 service:
   pipelines:
