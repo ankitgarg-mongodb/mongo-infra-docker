@@ -226,15 +226,13 @@ Setup: TLS mode in `backends.conf`, applied by `bash quick-start.sh`. Certs in `
 | 1. Self-signed CA pinned | `TLS=tls` for the backend, `bash quick-start.sh` | `"endpoint":"https://…","caCertPath":"…/certs/ca.crt"` | Export succeeds. |
 | 2. mTLS | `TLS=mtls`, re-run `bash quick-start.sh` | Same + `"clientCertPath":"…/certs/client.crt","clientKeyPath":"…/certs/client.key"` | Export succeeds. |
 | 3. Encrypted client key | Same as case 2 | Encrypt once: `openssl rsa -aes256 -in certs/client.key -out certs/client.key.enc -passout pass:otel-demo`, then case 2 fields with `client.key.enc` + `"clientKeyPassword":"otel-demo"` | Export succeeds. |
-| 4. Scheme decides TLS | Plain-http backend (`victoriametrics` on 8428) | `"endpoint":"https://localhost:8428/…"` vs `"endpoint":"http://localhost:8428/…"` | `https://` fails against the plaintext listener; `http://` works. No guardrail prevents `http://` in production — prefer `https://`. |
 
-**Expected-failure variants — after the matching success case:**
 
-- After 1 — stale/wrong `caCertPath` (or dropped): module starts (endpoint is runtime-reachable), but every cycle logs a cert-verification export error (`certificate is valid for …, not <hostname>` when the SAN is missing); OM unaffected. Fixing `caCertPath` recovers.
-- After 2 — drop `clientCertPath`/`clientKeyPath`: TLS handshake failure logged each cycle; OM unaffected.
-- After 3 — wrong `"clientKeyPassword":"wrong"`: **startup** failure (key decryption happens at config time): module refuses to start, error 129, retries every 30s.
-
-(TLS floor is 1.2 — mention, don't demo.)
+**Other checks:**
+- Rule of thumb: file problems fail at **startup** (monitoring module refuses to start with clear OM error, retried every 30s). 
+  - TLS verification problems fail at handshake, every cycle (module keeps running, OM unaffected).
+- Scheme decides TLS: `https://` fails against a plain-http listener; `http://` works against it. No guardrail prevents `http://` in production — prefer `https://`.
+- TLS floor is 1.2 on the receiving end.
 
 ## Architecture recap
 
