@@ -402,7 +402,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -447,7 +447,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -492,7 +492,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -537,7 +537,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -582,7 +582,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -624,7 +624,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -666,7 +666,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -708,7 +708,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, operation) (rate(mongodb_operation_repl_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -914,7 +914,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -956,7 +956,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -998,7 +998,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -1040,7 +1040,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_time_microseconds_total[$__rate_interval])) / sum by (mongodb_replica_set, operation) (rate(mongodb_operation_latency_count_total[$__rate_interval])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{operation}}",
           "refId": "A",
           "datasource": {
@@ -1082,7 +1082,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
           "refId": "A",
           "datasource": {
@@ -1124,7 +1124,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
           "refId": "A",
           "datasource": {
@@ -1166,7 +1166,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
           "refId": "A",
           "datasource": {
@@ -1208,7 +1208,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(sum by (mongodb_replica_set, mongodb_process_type, type) (mongodb_connection_count), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_process_type}} {{type}}",
           "refId": "A",
           "datasource": {
@@ -1250,7 +1250,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_member}}",
           "refId": "A",
           "datasource": {
@@ -1259,7 +1259,7 @@
           }
         },
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "ok {{topology}}",
           "refId": "B",
           "datasource": {
@@ -1303,7 +1303,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_member}}",
           "refId": "A",
           "datasource": {
@@ -1312,7 +1312,7 @@
           }
         },
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "ok {{topology}}",
           "refId": "B",
           "datasource": {
@@ -1356,7 +1356,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_member}}",
           "refId": "A",
           "datasource": {
@@ -1365,7 +1365,7 @@
           }
         },
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "ok {{topology}}",
           "refId": "B",
           "datasource": {
@@ -1409,7 +1409,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_member) (mongodb_replication_member_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "{{topology}} {{mongodb_member}}",
           "refId": "A",
           "datasource": {
@@ -1418,7 +1418,7 @@
           }
         },
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (mongodb_health_ratio), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "ok {{topology}}",
           "refId": "B",
           "datasource": {
@@ -1630,7 +1630,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "window {{topology}}",
           "refId": "A",
           "datasource": {
@@ -1672,7 +1672,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "window {{topology}}",
           "refId": "A",
           "datasource": {
@@ -1714,7 +1714,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "window {{topology}}",
           "refId": "A",
           "datasource": {
@@ -1756,7 +1756,7 @@
       },
       "targets": [
         {
-          "expr": "label_replace(label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"unclustered\", \"mongodb_replica_set\", \"^$\"), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
+          "expr": "label_replace(avg by (mongodb_replica_set, mongodb_process_type) (last_over_time(mongodb_oplog_window_time_seconds[15m])), \"topology\", \"$1\", \"mongodb_replica_set\", \"(.+)\")",
           "legendFormat": "window {{topology}}",
           "refId": "A",
           "datasource": {
