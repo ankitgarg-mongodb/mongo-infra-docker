@@ -171,7 +171,7 @@
       },
       "targets": [
         {
-          "expr": "count(count by (mongodb_version, service_instance_id) (mongodb_uptime_milliseconds_total))",
+          "expr": "count by (mongodb_version) (count by (mongodb_version, service_instance_id) (mongodb_uptime_milliseconds_total))",
           "legendFormat": "{{mongodb_version}}",
           "refId": "A"
         }
@@ -187,7 +187,7 @@
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "textMode": "auto"
+        "textMode": "value_and_name"
       }
     },
     {
@@ -207,7 +207,7 @@
       },
       "targets": [
         {
-          "expr": "count(count by (service_version, service_instance_id) (mongodb_mms_agent_uptime_seconds))",
+          "expr": "count by (service_version) (count by (service_version, service_instance_id) (mongodb_mms_agent_uptime_seconds))",
           "legendFormat": "{{service_version}}",
           "refId": "A"
         }
@@ -223,7 +223,7 @@
       "options": {
         "colorMode": "value",
         "graphMode": "none",
-        "textMode": "auto"
+        "textMode": "value_and_name"
       }
     },
     {
@@ -1985,44 +1985,6 @@
       "fieldConfig": {
         "defaults": {
           "unit": "short"
-        },
-        "overrides": []
-      },
-      "options": {
-        "legend": {
-          "displayMode": "table",
-          "placement": "bottom",
-          "calcs": [
-            "lastNotNull"
-          ]
-        }
-      }
-    },
-    {
-      "id": 40,
-      "type": "timeseries",
-      "title": "Operation time by type (top, per process)",
-      "description": "mongodb.operation.time from the top sampler - counter in ms, rated; series appear only while top samples are being recorded",
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 126
-      },
-      "datasource": {
-        "type": "prometheus",
-        "uid": "${ds}"
-      },
-      "targets": [
-        {
-          "expr": "sum by (operation, server_address, server_port) (rate(mongodb_operation_time_milliseconds_total[$__rate_interval]))",
-          "legendFormat": "{{operation}} {{server_address}}:{{server_port}}",
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms"
         },
         "overrides": []
       },
