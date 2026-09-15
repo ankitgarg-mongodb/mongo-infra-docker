@@ -37,11 +37,12 @@ The endpoint scheme is `http` or `https` per the TLS mode each backend gets from
 
 ## Live: metrics flowing
 
-### Point the agent at a backend — DEMO
+**Demo is for a complete feature planned for upcoming release**
+### Point the agent at a backend
 
 - `bash agent-config.sh` → apply the printed `otelConfig` (OM UI custom config / API) → wait for module recycle.
 
-### Confirm it's flowing — DEMO
+### Confirm it's flowing
 
 - Backend Diff dashboard: <http://localhost:3000/d/mongodb-agent-otel-diff/mongodb-agent-otlp-backend-diff?refresh=30s>
 - Monitoring module log:
@@ -53,9 +54,9 @@ The endpoint scheme is `http` or `https` per the TLS mode each backend gets from
   → `[otel.info] Otel: emitter initialized: endpoint=https://localhost:8428/… interval=30s compression=gzip`
 - Data Already flowing to OM — same collection cycle as before, just an extra sink.
 
-### On the wire — raw view — DEMO
+### On the wire — raw view
 
-**Resource attributes — DEMO**
+**Resource attributes**
 - Explore raw `victoriametrics` datasource in grafana → `{__name__=~"mongodb.*"}`
   - <http://localhost:3000/goto/spfpcc?orgId=default>
 - Every series carries these labels, and can be used for dimensions to group by:
@@ -93,7 +94,7 @@ Behavior when things are unreachable:
 - All kinds: no new sample for 20 minutes → the series is dropped and disappears from the backend.
 - Kind semantics only matter when the data goes stale (mongod unreachable); a down backend just retries the next cycle — with the latest values only, missed cycles are never backfilled (the backend timeline keeps a gap).
 
-**N+1 requests per cycle — DEMO**
+**N+1 requests per cycle**
 
 - One request per monitored process plus one agent self-health payload (`mongodb_mms_agent_uptime_seconds`, `…memory.usage`, `…goroutine.count`)
 - Catch one request raw:
@@ -111,7 +112,7 @@ Behavior when things are unreachable:
 - Header nuance: `Accept-Encoding: gzip` (always present) is the agent accepting gzip *responses* — the body is compressed only when the config sets `compression: "gzip"` (then `Transfer-Encoding: chunked`; without it you get `Content-Length` and a plain body).
 - The one-shot server grabs the first request of the cycle = the agent self-health payload (sorted first). Uncompressed bodies are partly readable as-is: `strings /tmp/otel-req.bin | grep mongodb` — attribute keys (`host.name`, `mms.group_id`), `go1.27.0`, and the `mongodb.mms.agent.*` metric names are visible in cleartext.
 
-**Per-cycle export log (every 30s) — DEMO**
+**Per-cycle export log (every 30s)**
 
 - The success line is DEBUG — set the monitoring agent log level to `debug` in OM; applies on module recycle/conf sync, no restart needed. Then:
 
@@ -124,7 +125,7 @@ Behavior when things are unreachable:
   - `Otel: <endpoint>: export failed for N of M resources` (ERROR), when a backend is down.
   - `export cycle exhausted its 30s budget; N of 12 resources unsent` (WARN) when a backend is slow.
 
-**Replication: per-viewer duplication — DEMO (if time allows)**
+**Replication: per-viewer duplication (if time allows)**
 
 - Explore → `victoriametrics` → raw query: <http://localhost:3000/goto/s5pbvf?orgId=default>
   `{__name__="mongodb_replication_member_state_ratio", mongodb_replica_set="myShard_0"}`
@@ -132,7 +133,7 @@ Behavior when things are unreachable:
 - Plotted raw, every member draws three overlapping lines; the dashboard panel collapses them with `avg by (mongodb_member)` — one line per member. That's why the panel metric is named `..._state_ratio`.
 - True for every replica set, not just shards.
 
-### Counter-reset correctness — DEMO
+### Counter-reset correctness
 
 - Restart one `mongod` from OM (automation recycles the process) and watch the Backend Diff dashboard.
 - `mongodb.uptime` / `mongodb.operation.count` drop, a new counter start time derived from the new `mongod` uptime, and cumulative semantics preserved — `rate()` stays correct. A restart is a standard counter reset, not data loss.
@@ -154,7 +155,7 @@ Behavior when things are unreachable:
 
 Theme: **failures on the OTel path are contained; OM delivery never blinks.**
 
-### Kill the backend — DEMO
+### Kill the backend
 
 ```shell
 docker stop victoriametrics
@@ -177,7 +178,7 @@ tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffe
 
 ## Fail-loud configuration + TLS + endpoint defaults
 
-### Bad config → restart → recovery — DEMO
+### Bad config → restart → recovery
 
 - A misconfigured `otelConfig` fails loudly: the monitoring module refuses to start — this affects monitoring as a whole — retries every 30s, and surfaces to OM as error code **129** (`OtelStartErr`). OM reporting itself continues.
 
@@ -192,7 +193,7 @@ tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffe
   OTel startup recovered. resuming normal goal-state reporting      <- after fixing with bash agent-config.sh
   ```
 
-**Rejection payloads — demo these three:**
+**Rejection payloads these three:**
 
 | Scenario | Payload (the `otelConfig` value) | Error shown |
 | :---- | :---- | :---- |
@@ -206,7 +207,7 @@ tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffe
 - Structural rejections: no backends (`{"enabled":true,"backends":[]}` → `enabled=true but backends is empty`) · invalid JSON (`{not json}` → `parsing otelConfig`).
 - Field-level rejections: unknown compression (`"compression":"zstd"` → `invalid compression "zstd"`) · malformed headers (`"headers":"no-equals-sign"` → `invalid headers entry`) · empty header key (`"headers":"=Bearer token"` → `invalid headers entry`).
 
-### Endpoint defaults — DEMO
+### Endpoint defaults
 
 - Packaged receivers all use explicit ports and paths (prep table) — defaults are shown by catching the raw request; no real 4318 receiver needed:
 - apply `{"enabled":true,"backends":[{"endpoint":"http://localhost:4318"}]}` (no path), then:
@@ -218,7 +219,7 @@ tail -f /var/log/mongodb-mms-automation/monitoring-agent.log | grep --line-buffe
 
 - Custom path is honored as-is: `http://localhost:4318/custom/metrics` → `POST /custom/metrics`.
 
-### TLS use cases — DEMO
+### TLS use cases
 
 Setup: TLS mode in `backends.conf`, applied by `bash quick-start.sh`. Certs in `certs/`: `ca.crt` = `caCertPath`, `client.crt`/`client.key` = `clientCertPath`/`clientKeyPath`. `bash agent-config.sh` emits the matching config for the active mode.
 
